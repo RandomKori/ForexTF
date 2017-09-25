@@ -5,9 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Test.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <StartupFile>RNNClass.py</StartupFile>
+    <SearchPath>modules\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>ForexNN</Name>
@@ -22,6 +21,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Readers.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RNNClass.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Test.py" />
   </ItemGroup>
   <PropertyGroup>
