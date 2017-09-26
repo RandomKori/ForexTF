@@ -5,22 +5,20 @@ import tensorflow as tf
 INITIAL_LEARNING_RATE = 0.5
 LEARNING_RATE_DECAY_STEPS = 15000
 LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS=100
+EPOCHS=10
 BATCH_SIZE=512
 LAYERS=5
 
 def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
-        x=tf.placeholder(tf.float32,[None,45,1],"Input")
-        y=tf.placeholder(tf.float32,[None,3],"Output")
+        x=tf.placeholder(tf.float32,[None,1,45],"Input")
+        y=tf.placeholder(tf.float32,[None,1,3],"Output")
         training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
     with tf.variable_scope("Net"):
-        l_cells=[tf.nn.rnn_cell.BasicRNNCell(45) for _ in range(LAYERS)]       
-        cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
-        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=cells, inputs=x, dtype=tf.float32)
+        l_cells=tf.nn.rnn_cell.BasicRNNCell(45)       
+        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=l_cells, inputs=x, dtype=tf.float32)
     with tf.variable_scope("predictions"):
-        output = rnn_state[-1]
-        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
+        prediction = tf.layers.dense(inputs=rnn_output, units=3, name="prediction")
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction)
@@ -53,9 +51,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
     return
 
 x_t,y_t=rd.ReadDataClass("./Data/train.csv")
-x_t.resize((x_t.shape[0],45,1))
+x_t.resize((x_t.shape[0],1,45))
+y_t.resize((y_t.shape[0],1,3))
 x_e,y_e=rd.ReadDataClass("./Data/test.csv")
-x_e.resize((x_e.shape[0],45,1))
+x_e.resize((x_e.shape[0],1,45))
+y_e.resize((y_e.shape[0],1,3))
 print("Тренировка модели")
 model_rnn(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")
