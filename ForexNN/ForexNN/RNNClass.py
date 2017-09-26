@@ -2,20 +2,17 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-RNN_LAYERS = [{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},
-              {"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},
-              {"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6},{"units": 6}]
-
 INITIAL_LEARNING_RATE = 1e-1
 LEARNING_RATE_DECAY_STEPS = 15000
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS=10
 BATCH_SIZE=512
-LAERS=5
+LAYERS=5
+state_size=4
 
 def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
-        x=tf.placeholder(tf.float32,[None,45],"Input")
+        x=tf.placeholder(tf.float32,[None,45,1],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
         training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
     with tf.variable_scope("learning_rate"):
@@ -25,15 +22,12 @@ def model_rnn(x_t,y_t,x_e,y_e):
                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
                                                    name="learning_rate")
     with tf.variable_scope("Net"):
-        l_cells=tf.contrib.rnn.BasicRNNCell(num_units=45)
-        hidden_state = tf.zeros([45, l_cells.state_size])
-        current_state = tf.zeros([45, l_cells.state_size])
-        state = hidden_state, current_state
-        output, state = l_cells(x,state)
-        for i in range(LAERS):
-            output, state = l_cells(output,state)
+        l_cells=[tf.nn.rnn_cell.BasicRNNCell(45) for _ in range(LAYERS)]       
+        cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
+        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=cells, inputs=x, dtype=tf.float32)
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=rnn_output, units=3, name="prediction")
+        output = rnn_state[-1]
+        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
     with tf.variable_scope("train"):
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction)
         train_step = tf.train.GradientDescentOptimizer(learning_rate=0.5).minimize(loss=loss, global_step=global_step)
@@ -65,9 +59,9 @@ def model_rnn(x_t,y_t,x_e,y_e):
     return
 
 x_t,y_t=rd.ReadDataClass("./Data/train.csv")
-#x_t.resize((x_t.shape[0],45,1))
+x_t.resize((x_t.shape[0],45,1))
 x_e,y_e=rd.ReadDataClass("./Data/test.csv")
-#x_e.resize((x_e.shape[0],45,1))
+x_e.resize((x_e.shape[0],45,1))
 print("Тренировка модели")
 model_rnn(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")
