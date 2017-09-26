@@ -6,7 +6,8 @@
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>RNNClass.py</StartupFile>
-    <SearchPath>modules\</SearchPath>
+    <SearchPath>
+    </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>ForexNN</Name>
