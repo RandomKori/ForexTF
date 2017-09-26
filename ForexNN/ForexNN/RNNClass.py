@@ -2,25 +2,18 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 1e-1
+INITIAL_LEARNING_RATE = 0.5
 LEARNING_RATE_DECAY_STEPS = 15000
 LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS=10
+EPOCHS=100
 BATCH_SIZE=512
 LAYERS=5
-state_size=4
 
 def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,45,1],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
         training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
-    with tf.variable_scope("learning_rate"):
-        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        learning_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
-                                                   decay_steps=LEARNING_RATE_DECAY_STEPS,
-                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
-                                                   name="learning_rate")
     with tf.variable_scope("Net"):
         l_cells=[tf.nn.rnn_cell.BasicRNNCell(45) for _ in range(LAYERS)]       
         cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
@@ -29,8 +22,9 @@ def model_rnn(x_t,y_t,x_e,y_e):
         output = rnn_state[-1]
         prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
     with tf.variable_scope("train"):
+        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction)
-        train_step = tf.train.GradientDescentOptimizer(learning_rate=0.5).minimize(loss=loss, global_step=global_step)
+        train_step = tf.train.MomentumOptimizer(learning_rate=0.04,momentum=0.8,use_nesterov=True).minimize(loss=loss, global_step=global_step)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
