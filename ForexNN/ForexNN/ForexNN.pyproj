@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>RNNClass.py</StartupFile>
+    <StartupFile>DenseClass.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DenseClass.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Readers.py">
       <SubType>Code</SubType>
     </Compile>

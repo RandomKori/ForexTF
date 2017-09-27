@@ -2,16 +2,16 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.9
-LEARNING_RATE_DECAY_STEPS = 5000
-LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS=1000
+INITIAL_LEARNING_RATE = 0.8
+LEARNING_RATE_DECAY_STEPS = 50000
+LEARNING_RATE_DECAY_RATE = 0.1
+EPOCHS=100
 BATCH_SIZE=1024
-LAYERS=3
+LAYERS=5
 
 def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
-        x=tf.placeholder(tf.float32,[None,15,3],"Input")
+        x=tf.placeholder(tf.float32,[None,45],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
         training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
         with tf.variable_scope("learning_rate"):
@@ -24,22 +24,18 @@ def model_rnn(x_t,y_t,x_e,y_e):
             tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
-        l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid,) for _ in range(15)]
-        rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
-        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=x, dtype=tf.float32)
-        #for i in range(LAYERS):
-        #    l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid) for _ in range(15)]
-        #    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
-        #    rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_output, dtype=tf.float32)
+        output = tf.layers.dense(inputs=x, units=60, activation=tf.nn.sigmoid, name="layer_inp")
+        for i in range(LAYERS):
+            output = tf.layers.dense(inputs=output, units=60, activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
+        
     with tf.variable_scope("predictions"):
-        output = rnn_state[-1]
         x1 = tf.layers.dropout(inputs=output, rate=l_rate, training=training, name="dropout")
-        prediction = tf.layers.dense(inputs=x1, units=3, activation=tf.nn.softmax, name="prediction")
+        prediction = tf.layers.dense(inputs=x1, units=3, activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.hinge_loss(labels=prediction, logits=prediction)
-        train_step = tf.train.MomentumOptimizer(learning_rate=l_rate,momentum=0.5,use_nesterov=True).minimize(loss=loss, global_step=global_step)
+        loss = tf.losses.log_loss(labels=prediction, predictions=prediction)
+        train_step = tf.train.MomentumOptimizer(learning_rate=l_rate,momentum=0.8,use_nesterov=True).minimize(loss=loss, global_step=global_step)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
@@ -64,16 +60,16 @@ def model_rnn(x_t,y_t,x_e,y_e):
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e, training: False})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
-        saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
+        saver.save(sess=sess, save_path="./ModelRNNClass/DenseClass")
         rez=sess.run(prediction,feed_dict={x: x_e, training: False})
         for i in range(len(rez)):
             print(rez[i])
     return
 
 x_t,y_t=rd.ReadDataClass("./Data/train.csv")
-x_t.resize((x_t.shape[0],15,3))
+#x_t.resize((x_t.shape[0],15,3))
 x_e,y_e=rd.ReadDataClass("./Data/test.csv")
-x_e.resize((x_e.shape[0],15,3))
+#x_e.resize((x_e.shape[0],15,3))
 print("Тренировка модели")
 model_rnn(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")
