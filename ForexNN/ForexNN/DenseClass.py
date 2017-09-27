@@ -30,7 +30,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output = tf.contrib.layers.batch_norm(output, center=True, scale=True, is_training=training, scope="bn_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")

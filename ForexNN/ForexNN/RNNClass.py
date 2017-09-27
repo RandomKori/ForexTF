@@ -33,7 +33,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("predictions"):
         output = rnn_state[-1]
         
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.softmax, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
