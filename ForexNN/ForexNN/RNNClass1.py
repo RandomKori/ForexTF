@@ -4,9 +4,9 @@ import tensorflow as tf
 
 INITIAL_LEARNING_RATE = 0.03
 LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS=1000
+EPOCHS=10000
 BATCH_SIZE=1024
-LAYERS=5
+LAYERS=7
 
 def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
@@ -29,14 +29,12 @@ def model_rnn(x_t,y_t,x_e,y_e):
             l_cells=tf.nn.rnn_cell.BasicRNNCell(45,activation=tf.nn.sigmoid) 
             rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=l_cells, inputs=rnn_output, dtype=tf.float32,scope="layer_"+"{}".format(i))
     with tf.variable_scope("predictions"):
-        output = rnn_output[-1]
-        x1 = tf.layers.dropout(inputs=output, rate=l_rate, training=training, name="dropout")
-        prediction = tf.layers.dense(inputs=x1, units=3, activation=tf.nn.softmax, name="prediction")
+        prediction = tf.layers.dense(inputs=rnn_state, units=3, activation=tf.nn.softmax, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
-        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss=loss, global_step=tf.train.get_global_step())
+        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.1).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
