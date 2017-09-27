@@ -47,11 +47,11 @@ void OnStart()
          double delta2=(his[i-j].low/his[i-j-1].low)/norm;
          d=d+DoubleToString(delta,12)+";"+DoubleToString(delta1,12)+";"+DoubleToString(delta2,12)+";";
       }
-      string d1="0.0;0.0;1.0;0.0";
+      string d1="0.0;0.0;1.0";
       if(z[i]>0)
       {
-         if(zh[i]>0) d1="1.0;0.0;0.0;0.0";
-         if(zl[i]>0) d1="0.0;1.0;0.0;0.0";
+         if(zh[i]>0) d1="1.0;0.0;0.0";
+         if(zl[i]>0) d1="0.0;1.0;0.0";
       }
       FileWrite(ot,d+d1);
     }
@@ -69,11 +69,11 @@ void OnStart()
          double delta2=(his[i-j].low/his[i-j-1].low)/norm;
          d=d+DoubleToString(delta,12)+";"+DoubleToString(delta1,12)+";"+DoubleToString(delta2,12)+";";
       }
-      string d1="0.0;0.0;1.0;0.0";
+      string d1="0.0;0.0;1.0";
       if(z[i]>0)
       {
-         if(zh[i]>0) d1="1.0;0.0;0.0;0.0";
-         if(zl[i]>0) d1="0.0;1.0;0.0;0.0";
+         if(zh[i]>0) d1="1.0;0.0;0.0";
+         if(zl[i]>0) d1="0.0;1.0;0.0";
       }
       FileWrite(ot,d+d1);
     }
