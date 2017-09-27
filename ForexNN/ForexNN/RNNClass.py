@@ -2,8 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.5
-LEARNING_RATE_DECAY_STEPS = 5000
+INITIAL_LEARNING_RATE = 0.03
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS=1000
 BATCH_SIZE=1024
@@ -17,14 +16,14 @@ def model_rnn(x_t,y_t,x_e,y_e):
         with tf.variable_scope("learning_rate"):
             global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
             l_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
-                                                    decay_steps=LEARNING_RATE_DECAY_STEPS,
+                                                    decay_steps=50*BATCH_SIZE,
                                                     decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
                                                     name="learning_rate")
             tf.summary.scalar(name="learning_rate", tensor=l_rate)
             tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
-        l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid,) for _ in range(15)]
+        l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid) for _ in range(15)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
         rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=x, dtype=tf.float32,scope="layer_inp")
         for i in range(LAYERS):
@@ -32,14 +31,14 @@ def model_rnn(x_t,y_t,x_e,y_e):
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
             rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_output, dtype=tf.float32,scope="layer_"+"{}".format(i))
     with tf.variable_scope("predictions"):
-        output = rnn_state[-1]
+        output = rnn_output[-1]
         x1 = tf.layers.dropout(inputs=output, rate=l_rate, training=training, name="dropout")
         prediction = tf.layers.dense(inputs=x1, units=3, activation=tf.nn.softmax, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
-        train_step = tf.train.AdadeltaOptimizer(learning_rate=l_rate).minimize(loss=loss, global_step=global_step)
+        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))

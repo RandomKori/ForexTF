@@ -31,6 +31,9 @@
     <Compile Include="RNNClass.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RNNClass1.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Test.py" />
   </ItemGroup>
   <PropertyGroup>
