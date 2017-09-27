@@ -2,10 +2,10 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.8
-LEARNING_RATE_DECAY_STEPS = 50000
-LEARNING_RATE_DECAY_RATE = 0.1
-EPOCHS=100
+INITIAL_LEARNING_RATE = 0.1
+LEARNING_RATE_DECAY_STEPS = 10000
+LEARNING_RATE_DECAY_RATE = 0.96
+EPOCHS=5000
 BATCH_SIZE=1024
 LAYERS=5
 
@@ -25,8 +25,10 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("Net"):
         output = tf.layers.dense(inputs=x, units=60, activation=tf.nn.sigmoid, name="layer_inp")
+        output = tf.contrib.layers.batch_norm(output, center=True, scale=True, is_training=training, scope="bn_inp")
         for i in range(LAYERS):
             output = tf.layers.dense(inputs=output, units=60, activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
+            output = tf.contrib.layers.batch_norm(output, center=True, scale=True, is_training=training, scope="bn_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
         x1 = tf.layers.dropout(inputs=output, rate=l_rate, training=training, name="dropout")
@@ -34,8 +36,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.log_loss(labels=prediction, predictions=prediction)
-        train_step = tf.train.MomentumOptimizer(learning_rate=l_rate,momentum=0.8,use_nesterov=True).minimize(loss=loss, global_step=global_step)
+        loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
+        train_step = tf.train.MomentumOptimizer(learning_rate=l_rate,momentum=0.9,use_nesterov=True).minimize(loss=loss, global_step=global_step)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
@@ -58,6 +60,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e, training: False})
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
+            if(loss_train<0.01): 
+                break
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e, training: False})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
         saver.save(sess=sess, save_path="./ModelRNNClass/DenseClass")

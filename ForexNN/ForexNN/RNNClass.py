@@ -2,7 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.9
+INITIAL_LEARNING_RATE = 0.5
 LEARNING_RATE_DECAY_STEPS = 5000
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS=1000
@@ -26,11 +26,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Net"):
         l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid,) for _ in range(15)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
-        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=x, dtype=tf.float32)
-        #for i in range(LAYERS):
-        #    l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid) for _ in range(15)]
-        #    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
-        #    rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_output, dtype=tf.float32)
+        rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=x, dtype=tf.float32,scope="layer_inp")
+        for i in range(LAYERS):
+            l_cells=[tf.nn.rnn_cell.BasicRNNCell(6,activation=tf.nn.sigmoid) for _ in range(15)]
+            rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
+            rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_output, dtype=tf.float32,scope="layer_"+"{}".format(i))
     with tf.variable_scope("predictions"):
         output = rnn_state[-1]
         x1 = tf.layers.dropout(inputs=output, rate=l_rate, training=training, name="dropout")
@@ -38,8 +38,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.hinge_loss(labels=prediction, logits=prediction)
-        train_step = tf.train.MomentumOptimizer(learning_rate=l_rate,momentum=0.5,use_nesterov=True).minimize(loss=loss, global_step=global_step)
+        loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
+        train_step = tf.train.AdadeltaOptimizer(learning_rate=l_rate).minimize(loss=loss, global_step=global_step)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
@@ -64,6 +64,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e, training: False})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
+            if(loss_train<0.02):
+                break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
         rez=sess.run(prediction,feed_dict={x: x_e, training: False})
         for i in range(len(rez)):
