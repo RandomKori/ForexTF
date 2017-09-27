@@ -11,6 +11,12 @@
 input int      ExtDepth=7;
 input int      ExtDeviation=5;
 input int      ExtBackstep=3;
+input int      ATR=14;
+input int      MACDFast=12;
+input int      MACDSlow=29;
+input int      K=5;
+input int      D=3;
+input int      Slow=3;
 input int      NBars=50000;
 input double   Split=0.98;
 input double   norm=10.0;
@@ -29,9 +35,18 @@ void OnStart()
     CopyBuffer(h,1,0,limit,zh);
     CopyBuffer(h,2,0,limit,zl);
     CopyBuffer(h,0,0,limit,z);
-    MqlRates his[];
-    ArrayResize(his,limit);
-    CopyRates(Symbol(),Period(),0,limit,his);
+    int h1=iATR(Symbol(),Period(),ATR);
+    double at[];
+    ArrayResize(at,limit);
+    CopyBuffer(h1,0,0,limit,at);
+    int h2=iMACD(Symbol(),Period(),MACDFast,MACDSlow,3,PRICE_MEDIAN);
+    double macd[];
+    ArrayResize(macd,limit);
+    CopyBuffer(h2,0,0,limit,macd);
+    int h3=iStochastic(Symbol(),Period(),K,D,Slow,MODE_SMA,STO_LOWHIGH);
+    double rsi[];
+    ArrayResize(rsi,limit);
+    CopyBuffer(h3,0,0,limit,rsi);
     int tr=(int)(limit*Split);
     int ot=FileOpen("train.csv",FILE_WRITE|FILE_ANSI,";");
     string hdr="s1;s2;s3;s4;s5;s6;s7;s8;s9;s10;s11;s12;s13;s14;s15;s16;s17;s18;s19;s20;s21;s22;s23;s24;s25;s26;s27;s28;s29;s30;s31;s32;s33;s34;s35;s36;s37;s38;s39;s40;s41;s42;s43;s44;s45;l1;l2;l3";
@@ -42,9 +57,9 @@ void OnStart()
       for(int j=0;j<15;j++)
       {
          
-         double delta=(his[i-j].high/his[i-j].low)/norm;
-         double delta1=(his[i-j].high/his[i-j-1].high)/norm;
-         double delta2=(his[i-j].low/his[i-j-1].low)/norm;
+         double delta=((1+at[i-j])/(1+at[i-j-1]))/norm;
+         double delta1=((1+macd[i-j])/(1+macd[i-j-1])+norm)/norm/10;
+         double delta2=((1+rsi[i-j])/(1+rsi[i-j-1]))/norm;
          d=d+DoubleToString(delta,15)+";"+DoubleToString(delta1,15)+";"+DoubleToString(delta2,15)+";";
       }
       string d1="0.0;0.0;1.0";
@@ -64,9 +79,9 @@ void OnStart()
       for(int j=0;j<15;j++)
       {
          
-         double delta=(his[i-j].high/his[i-j].low)/norm;
-         double delta1=(his[i-j].high/his[i-j-1].high)/norm;
-         double delta2=(his[i-j].low/his[i-j-1].low)/norm;
+         double delta=((1+at[i-j])/(1+at[i-j-1]))/norm;
+         double delta1=((1+macd[i-j])/(1+macd[i-j-1])+norm)/norm/10;
+         double delta2=((1+rsi[i-j])/(1+rsi[i-j-1]))/norm;
          d=d+DoubleToString(delta,15)+";"+DoubleToString(delta1,15)+";"+DoubleToString(delta2,15)+";";
       }
       string d1="0.0;0.0;1.0";
