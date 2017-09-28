@@ -12,7 +12,7 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,30],"Input")
         y=tf.placeholder(tf.float32,[None,30],"Output")
-        z=tf.placeholder(tf.float32,[None,3],"Classes")
+        z=tf.placeholder(tf.float32,[None,3],"ClassesOut")
 
     with tf.variable_scope("Net"):
         output = tf.layers.dense(inputs=x, units=70, activation=tf.nn.sigmoid, name="layer_inp")
@@ -49,15 +49,16 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
         train_writer = tf.summary.FileWriter(logdir="./logs/train/", graph=sess.graph)
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
+
         for e in range(1, EPOCHS + 1):
             np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
-                summary,acc= sess.run([merged, train_step], feed_dict=feed)
+                summary,acc= sess.run(["MSE", train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*n_batches+s)
-            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
+            summary,acc = sess.run(["MSE", loss],feed_dict={x: x_e, y: y_e})
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
@@ -71,9 +72,9 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
             for s in range(n_batches):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: z_t[id_batch]}
-                summary,acc= sess.run([merged, train_step1], feed_dict=feed)
+                summary,acc= sess.run(["Class", train_step1], feed_dict=feed)
                 train_writer.add_summary(summary, e*n_batches+s)
-            summary,acc = sess.run([merged, loss1],feed_dict={x: x_e, y: z_e})
+            summary,acc = sess.run(["Class", loss1],feed_dict={x: x_e, y: z_e})
             test_writer.add_summary(summary, e)
             loss_train1 = loss1.eval(feed_dict={x: x_t, y: z_t})
             loss_test1 = loss1.eval(feed_dict={x: x_e, y: z_e})
