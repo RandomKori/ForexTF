@@ -4,7 +4,7 @@ import tensorflow as tf
 
 INITIAL_LEARNING_RATE = 0.05
 LEARNING_RATE_DECAY_RATE = 0.01
-EPOCHS=5000
+EPOCHS=500
 BATCH_SIZE=1024
 LAYERS=10
 
@@ -23,17 +23,17 @@ def model_rnn(x_t,y_t,x_e,y_e):
             tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
-        output = tf.layers.dense(inputs=x, units=70, name="layer_inp")
+        output = tf.layers.dense(inputs=x, units=70, activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
-            output = tf.layers.dense(inputs=output, units=70, name="layer_"+"{}".format(i))
+            output = tf.layers.dense(inputs=output, units=70, activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
         prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
-        train_step = tf.train.MomentumOptimizer(learning_rate=0.05, momentum=0.2, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        loss = tf.losses.mean_squared_error(labels=y, predictions=prediction)
+        train_step = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.9, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))

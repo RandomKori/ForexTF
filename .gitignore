@@ -289,3 +289,5 @@ __pycache__/
 *.csv
 ForexNN/ForexNN/logs/
 ForexNN/ForexNN/ModelRNNClass/
+ForexNN/ForexNN/ModelDenseClass/
+ForexNN/ForexNN/ModelDenseClassBU/
