@@ -63,7 +63,7 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
-            if(loss_train<1.0E-10): 
+            if(loss_train<1.0E-7): 
                 break
 
         for e in range(1, EPOCHS + 1):
@@ -74,10 +74,10 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
                 feed = {x: x_t[id_batch], y: y_t[id_batch], z: z_t[id_batch]}
                 summary,acc= sess.run([merged, train_step1], feed_dict=feed)
                 train_writer.add_summary(summary, e*n_batches+s)
-            summary,acc = sess.run([merged, loss1],feed_dict={x: x_e, y: z_e, z: z_e})
+            summary,acc = sess.run([merged, loss1],feed_dict={x: x_e, y: y_e, z: z_e})
             test_writer.add_summary(summary, e)
-            loss_train1 = loss1.eval(feed_dict={x: x_t, y: z_t})
-            loss_test1 = loss1.eval(feed_dict={x: x_e, y: z_e})
+            loss_train1 = loss1.eval(feed_dict={x: x_t, z: z_t})
+            loss_test1 = loss1.eval(feed_dict={x: x_e, z: z_e})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train1,loss_test1))
             if(loss_train1<0.01): 
                 break
