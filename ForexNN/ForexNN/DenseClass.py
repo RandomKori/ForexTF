@@ -33,7 +33,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
-        train_step = tf.train.MomentumOptimizer(learning_rate=0.05, momentum=0.2, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        train_step = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
