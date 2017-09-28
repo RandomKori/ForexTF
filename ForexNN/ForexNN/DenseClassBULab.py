@@ -33,9 +33,11 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
     with tf.variable_scope("train"):
         loss = tf.losses.mean_squared_error(labels=y, predictions=prediction)
         train_step = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.2, use_nesterov=True, name='Momentum').minimize(loss=loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="MSE", tensor=loss)
+
+    with tf.variable_scope("train1"):
         loss1 = tf.losses.sigmoid_cross_entropy(multi_class_labels=z, logits=classifierlab)
         train_step1 = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.2, use_nesterov=True, name='MomentumLab').minimize(loss=loss1, global_step=tf.train.get_global_step())
-        tf.summary.scalar(name="MSE", tensor=loss)
         tf.summary.scalar(name="Class", tensor=loss1)
 
     idx = list(range(x_t.shape[0]))
@@ -53,24 +55,25 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
             for s in range(n_batches):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
-                summary,acc= sess.run([prediction, train_step], feed_dict=feed)
-                train_writer.add_summary(summary, e*s)
-            summary,acc = sess.run([prediction, loss],feed_dict={x: x_e, y: y_e})
+                summary,acc= sess.run([merged, train_step], feed_dict=feed)
+                train_writer.add_summary(summary, e*n_batches+s)
+            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
             if(loss_train1<0.01): 
                 break
+
         for e in range(1, EPOCHS + 1):
             np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: z_t[id_batch]}
-                summary,acc= sess.run([classifierlab, train_step1], feed_dict=feed)
-                train_writer.add_summary(summary, e*s)
-            summary,acc = sess.run([classifierlab, loss1],feed_dict={x: x_e, y: z_e})
+                summary,acc= sess.run([merged, train_step1], feed_dict=feed)
+                train_writer.add_summary(summary, e*n_batches+s)
+            summary,acc = sess.run([merged, loss1],feed_dict={x: x_e, y: z_e})
             test_writer.add_summary(summary, e)
             loss_train1 = loss1.eval(feed_dict={x: x_t, y: z_t})
             loss_test1 = loss1.eval(feed_dict={x: x_e, y: z_e})

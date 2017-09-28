@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>LTSMClass.py</StartupFile>
+    <StartupFile>DenseClassBULab.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

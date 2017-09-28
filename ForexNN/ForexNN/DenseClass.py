@@ -54,7 +54,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*s)
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e, training: False})
-            test_writer.add_summary(summary, e)
+            train_writer.add_summary(summary, e*n_batches+s)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e, training: False})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))

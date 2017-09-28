@@ -53,7 +53,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: y_t[id_batch], training: True}
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
-                train_writer.add_summary(summary, e*s)
+                train_writer.add_summary(summary, e*n_batches+s)
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e, training: False})
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
