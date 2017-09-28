@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DenseClass.py</StartupFile>
+    <StartupFile>LTSMClass.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -31,9 +31,10 @@
     <Compile Include="Readers.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RNNClass.py">
+    <Compile Include="LTSMClass.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RNNClass.py" />
     <Compile Include="RNNClass1.py">
       <SubType>Code</SubType>
     </Compile>

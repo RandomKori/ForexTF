@@ -32,3 +32,14 @@ def ReadDataClassBULab(s):
     y=np.array(y)
     x=np.array(x)
     return x,x,y
+
+
+def ReadDataClassLTSM(s):
+    dt={'s1':np.float64,'s2':np.float64,'s3':np.float64,'s4':np.float64,'s5':np.float64,'s6':np.float64,'s7':np.float64,'s8':np.float64,'s9':np.float64,
+        'l1':np.float64,'l2':np.float64,'l3':np.float64}
+    dat=pd.read_csv(s,';',dtype=dt)
+    x=dat[dat.columns[:9]].values
+    y=dat[dat.columns[9:]].values
+    x=np.array(x)
+    y=np.array(y)
+    return x,y
