@@ -12,6 +12,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x = tf.placeholder(tf.float32,[None,10,3],"Input")
         y = tf.placeholder(tf.float32,[None,3],"Output")
+        y_bs=tf.Variable(1024,dtype=tf.int32,name="bs");
 
     with tf.variable_scope("Net"):
         l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9, activation=tf.nn.sigmoid) for _ in range(3)]
@@ -28,7 +29,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,weights=y_bs,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
@@ -46,6 +47,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
+                y_bs.assign(len(id_batch))
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
                 summary,acc = sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e * n_batches + s)

@@ -12,7 +12,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,45],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
-
+        y_bs=tf.Variable(1024,dtype=tf.int32,name="bs");
     with tf.variable_scope("Net"):
         output = tf.layers.dense(inputs=x, units=70,activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
@@ -23,8 +23,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss=loss, global_step=tf.train.get_global_step())
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,weights=y_bs ,reduction=tf.losses.Reduction.MEAN)
+        train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
@@ -37,10 +37,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
         for e in range(1, EPOCHS + 1):
-            np.random.shuffle(idx)
+            #np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
+                y_bs.assign(len(id_batch))
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*s)
