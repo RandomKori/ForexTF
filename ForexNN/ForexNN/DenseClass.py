@@ -2,7 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.05
+LEARNING_RATE = 0.01
 LEARNING_RATE_DECAY_RATE = 0.01
 EPOCHS=1000
 BATCH_SIZE=1024
@@ -12,7 +12,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,45],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
-        y_bs=tf.Variable(1024,dtype=tf.int32,name="bs");
+        
     with tf.variable_scope("Net"):
         output = tf.layers.dense(inputs=x, units=70,activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
@@ -22,9 +22,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
         prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
-        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,weights=y_bs ,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
+        train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
@@ -41,7 +40,6 @@ def model_rnn(x_t,y_t,x_e,y_e):
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
-                y_bs.assign(len(id_batch))
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*s)

@@ -31,7 +31,7 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
         classifierlab = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="classifierlab")
 
     with tf.variable_scope("train"):
-        loss = tf.losses.mean_squared_error(labels=y, predictions=prediction)
+        loss = tf.losses.mean_squared_error(labels=y, predictions=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.2, use_nesterov=True, name='Momentum').minimize(loss=loss, var_list=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Net'), global_step=tf.train.get_global_step())
         tf.summary.scalar(name="MSE", tensor=loss)
 

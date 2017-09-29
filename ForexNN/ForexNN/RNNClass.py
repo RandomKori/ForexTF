@@ -22,7 +22,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)     
             rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_output, dtype=tf.float32,scope="layer_"+"{}".format(i))
     with tf.variable_scope("predictions"):
-        output = rnn_state[-1]
+        output = rnn_output[:,0]
         
         prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.sigmoid, name="prediction")
 

@@ -24,7 +24,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
         prediction = tf.layers.dense(inputs=output, units=30, activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
-        loss = tf.losses.mean_squared_error(labels=y, predictions=prediction)
+        loss = tf.losses.mean_squared_error(labels=y, predictions=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.2, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="MSE", tensor=loss)
 
