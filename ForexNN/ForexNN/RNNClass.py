@@ -12,7 +12,6 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,15,3],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
-        tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
         l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid) for _ in range(15)]

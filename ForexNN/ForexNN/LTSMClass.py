@@ -29,7 +29,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
+        train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))
