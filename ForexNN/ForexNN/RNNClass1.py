@@ -25,7 +25,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-         tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
