@@ -14,22 +14,22 @@ def model_rnn(x_t,y_t,x_e,y_e):
         y = tf.placeholder(tf.float32,[None,3],"Output")
 
     with tf.variable_scope("Net"):
-        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(3)]
+        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9, activation=tf.nn.sigmoid) for _ in range(3)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
-        output, state = tf.nn.dynamic_rnn(rnn_cells,x,dtype=tf.float32,scope="LTSM_l_inp")  
+        output, state = tf.nn.dynamic_rnn(rnn_cells,x,dtype=tf.float32, scope="LTSM_l_inp")  
         for i in range(LAYERS):
-            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(3)]
+            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9, activation=tf.nn.sigmoid) for _ in range(3)]
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
-            output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32,scope="LTSM_l_" + "{}".format(i))
+            output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32, scope="LTSM_l_" + "{}".format(i))
         
     with tf.variable_scope("predictions"):
         output = state[0][0]
-        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss=loss)
+        train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
     idx = list(range(x_t.shape[0]))

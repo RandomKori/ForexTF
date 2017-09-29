@@ -14,12 +14,12 @@ def model_rnn(x_t,y_t,x_e,y_e):
         y=tf.placeholder(tf.float32,[None,3],"Output")
 
     with tf.variable_scope("Net"):
-        output = tf.layers.dense(inputs=x, units=70, name="layer_inp")
+        output = tf.layers.dense(inputs=x, units=70,activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
-            output = tf.layers.dense(inputs=output, units=70, name="layer_"+"{}".format(i))
+            output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
@@ -45,7 +45,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*s)
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
-            train_writer.add_summary(summary, e*n_batches+s)
+            test_writer.add_summary(summary, e*n_batches+s)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
