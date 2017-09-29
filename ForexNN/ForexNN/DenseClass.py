@@ -52,7 +52,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             if(loss_train<0.01): 
                 break
         saver.save(sess=sess, save_path="./ModelDenseClass/DenseClass")
-        rez=sess.run(prediction,feed_dict={x: x_e, training: False})
+        rez=sess.run(prediction,feed_dict={x: x_e})
         for i in range(len(rez)):
             print(rez[i])
     return
