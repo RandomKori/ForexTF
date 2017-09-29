@@ -4,7 +4,7 @@ import tensorflow as tf
 
 INITIAL_LEARNING_RATE = 0.03
 LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS=10000
+EPOCHS=1000
 BATCH_SIZE=1024
 LAYERS=7
 
@@ -38,7 +38,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
         for e in range(1, EPOCHS + 1):
-            np.random.shuffle(idx)
+            #np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
