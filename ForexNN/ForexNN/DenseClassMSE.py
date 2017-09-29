@@ -12,15 +12,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,45],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
-        training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
-        with tf.variable_scope("learning_rate"):
-            global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-            l_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
-                                                    decay_steps=100*BATCH_SIZE,
-                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
-                                                    name="learning_rate")
-            tf.summary.scalar(name="learning_rate", tensor=l_rate)
-            tf.summary.scalar(name="global_step", tensor=global_step)
+        tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
         output = tf.layers.dense(inputs=x, units=70, activation=tf.nn.sigmoid, name="layer_inp")

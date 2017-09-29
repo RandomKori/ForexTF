@@ -14,11 +14,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
         y = tf.placeholder(tf.float32,[None,3],"Output")
 
     with tf.variable_scope("Net"):
-        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9,activation=tf.nn.relu) for _ in range(3)]
+        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(3)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
         output, state = tf.nn.dynamic_rnn(rnn_cells,x,dtype=tf.float32,scope="LTSM_l_inp")  
         for i in range(LAYERS):
-            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9,activation=tf.nn.relu) for _ in range(3)]
+            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(3)]
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
             output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32,scope="LTSM_l_" + "{}".format(i))
         
@@ -28,7 +28,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss=loss)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 

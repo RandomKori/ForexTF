@@ -36,7 +36,7 @@ def model_rnn(x_t,y_t,z_t,x_e,y_e,z_e):
         tf.summary.scalar(name="MSE", tensor=loss)
 
     with tf.variable_scope("train1"):
-        loss1 = tf.losses.sigmoid_cross_entropy(multi_class_labels=z, logits=classifierlab)
+        loss1 =  tf.losses.softmax_cross_entropy(onehot_labels=z, logits=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step1 = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.2, use_nesterov=True, name='MomentumLab').minimize(loss=loss1,var_list=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Net1'), global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Class", tensor=loss1)
 

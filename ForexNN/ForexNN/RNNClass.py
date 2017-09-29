@@ -12,15 +12,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
     with tf.variable_scope("Inputs"):
         x=tf.placeholder(tf.float32,[None,15,3],"Input")
         y=tf.placeholder(tf.float32,[None,3],"Output")
-        training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
-        with tf.variable_scope("learning_rate"):
-            global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-            l_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
-                                                    decay_steps=50*BATCH_SIZE,
-                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
-                                                    name="learning_rate")
-            tf.summary.scalar(name="learning_rate", tensor=l_rate)
-            tf.summary.scalar(name="global_step", tensor=global_step)
+        tf.summary.scalar(name="global_step", tensor=global_step)
 
     with tf.variable_scope("Net"):
         l_cells=[tf.nn.rnn_cell.BasicRNNCell(9,activation=tf.nn.sigmoid) for _ in range(15)]
@@ -37,7 +29,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=y, logits=prediction)
+        loss =  tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
 
