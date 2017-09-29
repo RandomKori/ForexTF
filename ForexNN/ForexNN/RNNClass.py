@@ -46,13 +46,13 @@ def model_rnn(x_t,y_t,x_e,y_e):
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
             for s in range(n_batches):
                 id_batch = next(batch_generator)
-                feed = {x: x_t[id_batch], y: y_t[id_batch], training: True}
+                feed = {x: x_t[id_batch], y: y_t[id_batch]}
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
                 train_writer.add_summary(summary, e*n_batches+s)
-            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e, training: False})
+            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
             test_writer.add_summary(summary, e)
-            loss_train = loss.eval(feed_dict={x: x_t, y: y_t, training: False})
-            loss_test = loss.eval(feed_dict={x: x_e, y: y_e, training: False})
+            loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
+            loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
             if(loss_train<0.02):
                 break
