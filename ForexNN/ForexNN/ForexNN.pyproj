@@ -28,6 +28,9 @@
     <Compile Include="DenseClassMSE.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LTSMClassPrice.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Readers.py">
       <SubType>Code</SubType>
     </Compile>
