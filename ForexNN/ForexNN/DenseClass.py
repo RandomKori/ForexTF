@@ -2,10 +2,10 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.01
-LEARNING_RATE_DECAY_RATE = 0.01
+LEARNING_RATE = 0.0001
+LEARNING_RATE_DECAY_RATE = 0.0001
 EPOCHS=1000
-BATCH_SIZE=1024
+BATCH_SIZE=5000
 LAYERS=10
 
 def model_rnn(x_t,y_t,x_e,y_e):
@@ -19,11 +19,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.relu, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.relu, name="prediction")
 
     with tf.variable_scope("train"):
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+        train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
         tf.summary.scalar(name="Accuracy", tensor=accuracy)
@@ -45,7 +45,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
                 id_batch = next(batch_generator)
                 feed = {x: x_t[id_batch], y: y_t[id_batch]}
                 summary,acc= sess.run([merged, train_step], feed_dict=feed)
-                train_writer.add_summary(summary, e*s)
+                train_writer.add_summary(summary, e * n_batches + s)
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
             test_writer.add_summary(summary, e*n_batches+s)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})

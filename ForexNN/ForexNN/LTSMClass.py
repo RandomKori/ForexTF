@@ -2,10 +2,10 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.03
+LEARNING_RATE = 0.0001
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS = 1000
-BATCH_SIZE = 4096
+BATCH_SIZE = 5000
 LAYERS = 5
 
 def model_rnn(x_t,y_t,x_e,y_e):
@@ -15,11 +15,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
         
 
     with tf.variable_scope("Net"):
-        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9, activation=tf.nn.relu) for _ in range(10)]
+        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(10)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
         output, state = tf.nn.dynamic_rnn(rnn_cells,x,dtype=tf.float32, scope="LTSM_l_inp")  
         for i in range(LAYERS):
-            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9, activation=tf.nn.relu) for _ in range(10)]
+            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(10)]
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
             output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32, scope="LTSM_l_" + "{}".format(i))
         
