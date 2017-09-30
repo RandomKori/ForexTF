@@ -19,12 +19,14 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.sigmoid, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3,activation=tf.nn.relu, name="prediction")
 
     with tf.variable_scope("train"):
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
         train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+        _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
+        tf.summary.scalar(name="Accuracy", tensor=accuracy)
 
     idx = list(range(x_t.shape[0]))
     n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
@@ -35,6 +37,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
         train_writer = tf.summary.FileWriter(logdir="./logs/train/", graph=sess.graph)
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
+        sess.run(tf.initialize_local_variables())
         for e in range(1, EPOCHS + 1):
             #np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
@@ -47,7 +50,9 @@ def model_rnn(x_t,y_t,x_e,y_e):
             test_writer.add_summary(summary, e*n_batches+s)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
+            acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
+            acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
+            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,100.0-acc_train[0],100.0-acc_test[0]))
             if(loss_train<0.01): 
                 break
         saver.save(sess=sess, save_path="./ModelDenseClass/DenseClass")
