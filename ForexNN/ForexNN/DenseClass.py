@@ -14,7 +14,8 @@ def model_rnn(x_t,y_t,x_e,y_e):
         y=tf.placeholder(tf.float32,[None,3],"Output")
         
     with tf.variable_scope("Net"):
-        output = tf.layers.dense(inputs=x, units=70,activation=tf.nn.sigmoid, name="layer_inp")
+        norm=tf.nn.l2_normalize(x,1,name="norm")
+        output = tf.layers.dense(inputs=norm, units=70,activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
             output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
