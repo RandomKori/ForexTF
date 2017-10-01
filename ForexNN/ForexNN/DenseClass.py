@@ -4,7 +4,7 @@ import tensorflow as tf
 
 LEARNING_RATE = 0.1
 LEARNING_RATE_DECAY_RATE = 0.001
-EPOCHS=1000
+EPOCHS=5000
 BATCH_SIZE=5000
 LAYERS=10
 
@@ -15,15 +15,15 @@ def model_rnn(x_t,y_t,x_e,y_e):
         
     with tf.variable_scope("Net"):
         norm=tf.nn.l2_normalize(x,1,name="norm")
-        output = tf.layers.dense(inputs=norm, units=70,activation=tf.nn.sigmoid, name="layer_inp")
+        output = tf.layers.dense(inputs=norm, units=128,activation=tf.nn.sigmoid, name="layer_inp")
         for i in range(LAYERS):
-            output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
+            output = tf.layers.dense(inputs=output, units=128,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
         prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.relu, name="prediction")
 
     with tf.variable_scope("train"):
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
+        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.1))
         train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
@@ -53,7 +53,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
             acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,100.0-acc_train[0],100.0-acc_test[0]))
+            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,acc_train[0],acc_test[0]))
             if(loss_train<0.01): 
                 break
         saver.save(sess=sess, save_path="./ModelDenseClass/DenseClass")

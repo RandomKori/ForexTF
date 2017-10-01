@@ -2,7 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.05
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS = 1000
 BATCH_SIZE = 5000
@@ -26,11 +26,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
         
     with tf.variable_scope("predictions"):
         output = output[:,0]
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.relu, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
+        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.1))
         train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
 
@@ -61,7 +61,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
             acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
             acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,100.0-acc_train[0],100.0-acc_test[0]))
+            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,acc_train[0],acc_test[0]))
             if(loss_train < 0.02):
                 break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")

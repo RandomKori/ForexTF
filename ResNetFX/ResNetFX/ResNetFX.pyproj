@@ -3,15 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
+    <ProjectGuid>71eb1d84-521d-4cfb-9c09-2a47d84650c5</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DenseClass.py</StartupFile>
+    <StartupFile>ResNetFX.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>ForexNN</Name>
-    <RootNamespace>ForexNN</RootNamespace>
+    <Name>ResNetFX</Name>
+    <RootNamespace>ResNetFX</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,30 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DenseClass.py" />
-    <Compile Include="DenseClassRaz.py" />
-    <Compile Include="DenseClassInd1.py" />
-    <Compile Include="DensePrice.py" />
-    <Compile Include="DenseClassBU.py" />
-    <Compile Include="DenseClassBULab.py" />
-    <Compile Include="DenseClassMSE.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="LTSMClassPrice.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Readers.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="LTSMClass.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="RNNClass.py" />
-    <Compile Include="GRUClass1.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="RNNClass1.py" />
-    <Compile Include="Test.py" />
+    <Compile Include="ResNetFX.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

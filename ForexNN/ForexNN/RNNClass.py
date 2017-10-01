@@ -53,7 +53,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
+            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,acc_train[0],acc_test[0]))
             if(loss_train<0.02):
                 break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
