@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>36ade192-914a-4450-8ca5-2142894cb349</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DenseClass.py</StartupFile>
+    <StartupFile>DensePrice.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DenseClass.py" />
+    <Compile Include="DenseClassInd1.py" />
+    <Compile Include="DensePrice.py" />
     <Compile Include="DenseClassBU.py" />
     <Compile Include="DenseClassBULab.py" />
     <Compile Include="DenseClassMSE.py">
