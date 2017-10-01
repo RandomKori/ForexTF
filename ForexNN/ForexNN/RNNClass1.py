@@ -2,10 +2,10 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-INITIAL_LEARNING_RATE = 0.03
+LEARNING_RATE = 0.03
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS=1000
-BATCH_SIZE=1024
+BATCH_SIZE=5000
 LAYERS=7
 
 def model_rnn(x_t,y_t,x_e,y_e):
@@ -20,13 +20,16 @@ def model_rnn(x_t,y_t,x_e,y_e):
             l_cells=tf.nn.rnn_cell.BasicRNNCell(45,activation=tf.nn.sigmoid) 
             rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=l_cells, inputs=rnn_output, dtype=tf.float32,scope="layer_"+"{}".format(i))
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=rnn_output, units=3, name="prediction")
+        output = rnn_output[:,0]
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.relu, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.MomentumOptimizer(learning_rate=0.001, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
+        tf.summary.scalar(name="Accuracy", tensor=accuracy)
 
     idx = list(range(x_t.shape[0]))
     n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
@@ -37,6 +40,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
         train_writer = tf.summary.FileWriter(logdir="./logs/train/", graph=sess.graph)
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
+        sess.run(tf.initialize_local_variables())
         for e in range(1, EPOCHS + 1):
             #np.random.shuffle(idx)
             batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
@@ -49,7 +53,9 @@ def model_rnn(x_t,y_t,x_e,y_e):
             test_writer.add_summary(summary, e)
             loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
             loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
+            acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
+            acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
+            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,100.0-acc_train[0],100.0-acc_test[0]))
             if(loss_train<0.02):
                 break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")

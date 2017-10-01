@@ -2,8 +2,8 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.0001
-LEARNING_RATE_DECAY_RATE = 0.0001
+LEARNING_RATE = 0.1
+LEARNING_RATE_DECAY_RATE = 0.001
 EPOCHS=1000
 BATCH_SIZE=5000
 LAYERS=10
@@ -23,7 +23,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("train"):
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,reduction=tf.losses.Reduction.MEAN)
-        train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+        train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
         tf.summary.scalar(name="Accuracy", tensor=accuracy)
