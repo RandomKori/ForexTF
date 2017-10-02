@@ -45,13 +45,15 @@ class ResNet:
             output=tf.reshape(output,[tf.shape(output)[0],self.inp_size])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier)
-        with tf.variable_scope("Metrics"):
-            _,self.accuracy = tf.metrics.accuracy(labels=self.y, predictions=self.classes)
-            tf.summary.scalar(name="Accuracy", tensor=self.accuracy)
 
     def build_mom_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.5, use_nesterov=True).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
+
+    def build_adam_trainer(self):
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+        self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def train(self,x_train,y_train,x_test,y_test):
@@ -74,9 +76,7 @@ class ResNet:
                 test_writer.add_summary(summary, e)
                 loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
-                acc_train = sess.run([self.accuracy],feed_dict={self.x: x_train, self.y: y_train})
-                acc_test = sess.run([self.accuracy],feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,1.0-acc_train[0],1.0-acc_test[0]))
+                print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
                 if(loss_train < 0.02):
                     break
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
