@@ -43,13 +43,13 @@ class ResNet:
                 k=g
         with tf.variable_scope("Layer_out"):
             output=tf.reshape(output,[tf.shape(output)[0],self.inp_size])
-            self.classifier=tf.layers.dense(output,self.n_classes,activation=tf.nn.relu)
+            self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
         with tf.variable_scope("Metrics"):
             _,self.accuracy = tf.metrics.accuracy(labels=self.y, predictions=self.classifier)
             tf.summary.scalar(name="Accuracy", tensor=self.accuracy)
 
     def build_mom_trainer(self):
-        self.loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier,label_smoothing=0.1))
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.5, use_nesterov=True).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
