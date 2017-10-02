@@ -44,8 +44,9 @@ class ResNet:
         with tf.variable_scope("Layer_out"):
             output=tf.reshape(output,[tf.shape(output)[0],self.inp_size])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
+            self.classes=tf.nn.softmax(self.classifier)
         with tf.variable_scope("Metrics"):
-            _,self.accuracy = tf.metrics.accuracy(labels=self.y, predictions=self.classifier)
+            _,self.accuracy = tf.metrics.accuracy(labels=self.y, predictions=self.classes)
             tf.summary.scalar(name="Accuracy", tensor=self.accuracy)
 
     def build_mom_trainer(self):
@@ -79,6 +80,6 @@ class ResNet:
                 if(loss_train < 0.02):
                     break
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
-            rez = sess.run(self.classifier,feed_dict={self.x: x_test})
+            rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])
