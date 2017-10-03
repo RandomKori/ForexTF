@@ -2,10 +2,10 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.007
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS = 1000
-BATCH_SIZE = 5000
+BATCH_SIZE = 1024
 LAYERS = 5
 
 def model_rnn(x_t,y_t,x_e,y_e):
@@ -25,13 +25,13 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32, scope="LTSM_l_" + "{}".format(i))
         
     with tf.variable_scope("predictions"):
-        output = output[:,0]
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="prediction")
+        output=tf.reshape(output,[tf.shape(output)[0],90])
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.softmax, name="prediction")
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.1))
-        train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        loss = tf.losses.log_loss(labels=y, predictions=prediction)
+        train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss, global_step=tf.train.get_global_step())
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
 
         tf.summary.scalar(name="Cross Entropy", tensor=loss)

@@ -2,8 +2,8 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.1
-LEARNING_RATE_DECAY_RATE = 0.001
+LEARNING_RATE = 0.0001
+LEARNING_RATE_DECAY_RATE = 0.0001
 EPOCHS=5000
 BATCH_SIZE=5000
 LAYERS=10
@@ -20,11 +20,11 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output = tf.layers.dense(inputs=output, units=128,activation=tf.nn.sigmoid, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.relu, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.softmax, name="prediction")
 
     with tf.variable_scope("train"):
-        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.1))
-        train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
+        loss = tf.losses.log_loss(labels=y, predictions=prediction)
+        train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss, global_step=tf.train.get_global_step())
         _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
         tf.summary.scalar(name="Accuracy", tensor=accuracy)
