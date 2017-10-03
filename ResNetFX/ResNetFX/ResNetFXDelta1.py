@@ -20,6 +20,7 @@ x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
 net=rsn.ResNet(30,2)
 net.k_size=6
+net.ftl=7
 net.n_layers=10
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS

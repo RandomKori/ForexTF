@@ -19,6 +19,7 @@ def Read(s):
 x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
 net=rsn.ResNet(30)
+net.ftl=7
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
 net.build_model()

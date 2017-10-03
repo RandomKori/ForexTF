@@ -8,6 +8,7 @@ class ResNet:
         self.n_classes=num_classes
         self.n_layers=layers
         self.k_size=kernel_size
+        self.ftl=1
         self.epchs=epochs
         self.batch_size=1024
         self.learning_rate=0.01
@@ -26,24 +27,24 @@ class ResNet:
             self.x=tf.placeholder(tf.float32,[None,self.inp_size,1])
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
-            output=tf.layers.conv1d(self.x,1,self.k_size,padding="same")
+            output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
             output=self._batch_norm(output)
-            output=tf.layers.conv1d(output,1,self.k_size,padding="same")
+            output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
             output=self._batch_norm(output)
             output=tf.nn.relu(output)
             k=output
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
-                output=tf.layers.conv1d(output,1,self.k_size,padding="same")
+                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
                 output=self._batch_norm(output)
-                output=tf.layers.conv1d(output,1,self.k_size,padding="same")
+                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
                 output=self._batch_norm(output)
                 output=tf.nn.relu(output)
                 g=tf.identity(output)
                 output=tf.add(k,output)
                 k=g
         with tf.variable_scope("Layer_out"):
-            output=tf.reshape(output,[tf.shape(output)[0],self.inp_size])
+            output=tf.reshape(output,[tf.shape(output)[0],self.inp_size*self.ftl])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier)
 
