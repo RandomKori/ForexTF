@@ -286,7 +286,6 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-*.csv
 ForexNN/ForexNN/logs/
 ForexNN/ForexNN/ModelRNNClass/
 ForexNN/ForexNN/ModelDenseClass/
@@ -294,3 +293,5 @@ ForexNN/ForexNN/ModelDenseClassBU/
 ForexTF/ResNetFX/ResNetFX/logs
 ResNetFX/ResNetFX/ResNetFX/
 ResNetFX/ResNetFX/logs/
+ForexNN/ForexNN/Data/
+ResNetFX/ResNetFX/Data/
