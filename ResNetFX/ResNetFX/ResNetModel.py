@@ -48,7 +48,7 @@ class ResNet:
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier)
         with tf.variable_scope("Metrics"):
-            _,self.accurasy=tf.metrics.accuracy(labels=self.y,predictions=self.classes)
+            _,self.accurasy=tf.metrics.auc(labels=self.y,predictions=self.classes)
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
@@ -88,7 +88,7 @@ class ResNet:
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
                 acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
                 acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} {3:.4f}% Ошибка на тестовых данных: {2} {4:.4f}%".format(e,loss_train,loss_test,100.0-acc_train*100.0,100.0-acc_test*100.0))
+                print("Эпоха: {0} Ошибка: {1} {3:.4f} Ошибка на тестовых данных: {2} {4:.4f}".format(e,loss_train,loss_test,1.0-acc_train,1.0-acc_test))
                 if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
