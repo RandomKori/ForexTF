@@ -12,6 +12,7 @@ class ResNet:
         self.batch_size=1024
         self.learning_rate=0.01
         self.bn_epsilon=0.001
+        self.erly_stop=0.01
 
     def _batch_norm(self,o):
         mean, variance = tf.nn.moments(o, axes=[0, 1, 2])
@@ -56,6 +57,11 @@ class ResNet:
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
+    def build_adam_log_loss_trainer(self):
+        self.loss = tf.losses.log_loss(labels=self.y, predictions=self.classes)
+        self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
+
     def train(self,x_train,y_train,x_test,y_test):
         merged = tf.summary.merge_all()
         init_global = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
@@ -77,7 +83,7 @@ class ResNet:
                 loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
                 print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
-                if(loss_train < 0.02):
+                if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
