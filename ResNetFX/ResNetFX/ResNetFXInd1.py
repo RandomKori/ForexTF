@@ -22,10 +22,10 @@ x_e,y_e = Read("./Data/test.csv")
 net=rsn.ResNet(45)
 net.k_size=9
 net.ftl=15
-net.n_layers=10
+net.n_layers=7
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
-net.batch_size=512
+net.batch_size=256
 net.build_model()
 net.build_adam_trainer()
 print("Тренировка модели")
