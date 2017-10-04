@@ -86,12 +86,13 @@ class ResNet:
                 test_writer.add_summary(summary, e)
                 loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
-                acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
-                acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} {3:.4f} Ошибка на тестовых данных: {2} {4:.4f}".format(e,loss_train,loss_test,1.0-acc_train,1.0-acc_test))
+                print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
                 if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
+            sess.run(tf.initialize_local_variables())
+            acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
+            print("Процент ошибок на тестовых данных{0:.4f}".format(100.0-acc_test*100.0))
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])
