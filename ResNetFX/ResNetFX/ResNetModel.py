@@ -52,17 +52,17 @@ class ResNet:
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
-        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier,label_smoothing=0.1)
         self.train_step = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.5, use_nesterov=True).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_trainer(self):
-        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier,label_smoothing=0.1)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):
-        self.loss = tf.losses.log_loss(labels=self.y, predictions=self.classes)
+        self.loss = tf.losses.log_loss(labels=self.y, predictions=self.classes,label_smoothing=0.1)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
