@@ -1,9 +1,9 @@
 import numpy as np
-import ResNetModelV1 as rsn
+import ResNetModel as rsn
 import pandas as pd
 
-LEARNING_RATE=0.0005
-EPOCHS=1000
+LEARNING_RATE=0.0001
+EPOCHS=200
 
 def Read(s):
     dt={'s1':np.float64,'s2':np.float64,'s3':np.float64,'s4':np.float64,'s5':np.float64,'s6':np.float64,'s7':np.float64,'s8':np.float64,'s9':np.float64,'s10':np.float64,'s11':np.float64,'s12':np.float64,'s13':np.float64,'s14':np.float64,'s15':np.float64,
@@ -20,14 +20,14 @@ def Read(s):
 x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
 net=rsn.ResNet(45)
-net.k_size=9
-net.ftl=15
-net.n_layers=7
+net.k_size=12
+net.ftl=20
+net.n_layers=20
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
 net.batch_size=256
 net.build_model()
-net.build_adam_trainer()
+net.build_rms_trainer()
 print("Тренировка модели")
 net.train(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")

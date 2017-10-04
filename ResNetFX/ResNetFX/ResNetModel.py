@@ -60,6 +60,11 @@ class ResNet:
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
+    
+    def build_rms_trainer(self):
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+        self.train_step = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):
         self.loss = tf.losses.log_loss(labels=self.y, predictions=self.classes)
@@ -92,7 +97,7 @@ class ResNet:
             saver.save(sess=sess, save_path="./ResNetFX/ResNetFX")
             sess.run(tf.initialize_local_variables())
             acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-            print("Процент ошибок на тестовых данных{0:.4f}".format(100.0-acc_test*100.0))
+            print("Процент ошибок на тестовых данных  {0:.4f}".format(100.0-acc_test*100.0))
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])
