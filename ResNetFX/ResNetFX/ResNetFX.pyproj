@@ -27,7 +27,8 @@
     <Compile Include="ResNetFXTest.py" />
     <Compile Include="ResNetFXDelta1.py" />
     <Compile Include="ResNetFX1.py" />
-    <Compile Include="ResNetModel.py">
+    <Compile Include="ResNetModel.py" />
+    <Compile Include="ResNetModelV1.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
