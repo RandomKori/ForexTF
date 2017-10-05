@@ -2,7 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.007
+LEARNING_RATE = 0.0001
 LEARNING_RATE_DECAY_RATE = 0.96
 EPOCHS = 1000
 BATCH_SIZE = 1024
@@ -16,23 +16,24 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("Net"):
         #norm=tf.nn.l2_normalize(x,2,name="norm")
-        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(10)]
+        l_cells = [tf.nn.rnn_cell.BasicLSTMCell(3) for _ in range(10)]
         rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
         output, state = tf.nn.dynamic_rnn(rnn_cells,x,dtype=tf.float32, scope="LTSM_l_inp")  
         for i in range(LAYERS):
-            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(9) for _ in range(10)]
+            l_cells = [tf.nn.rnn_cell.BasicLSTMCell(3) for _ in range(10)]
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=l_cells)
             output, state = tf.nn.dynamic_rnn(rnn_cells,output,dtype=tf.float32, scope="LTSM_l_" + "{}".format(i))
         
     with tf.variable_scope("predictions"):
-        output=tf.reshape(output,[tf.shape(output)[0],90])
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.softmax, name="prediction")
+        output=tf.reshape(output,[tf.shape(output)[0],30])
+        prediction = tf.layers.dense(inputs=output, units=3, activation=None, name="prediction")
+        classes=tf.nn.softmax(prediction)
 
     with tf.variable_scope("train"):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        loss = tf.losses.log_loss(labels=y, predictions=prediction)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=y,  logits=prediction)
         train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss, global_step=tf.train.get_global_step())
-        _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
+        _,accuracy = tf.metrics.precision(labels=y, predictions=classes)
 
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
         tf.summary.scalar(name="Accuracy", tensor=accuracy)
@@ -65,7 +66,7 @@ def model_rnn(x_t,y_t,x_e,y_e):
             if(loss_train < 0.02):
                 break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
-        rez = sess.run(prediction,feed_dict={x: x_e})
+        rez = sess.run(classes,feed_dict={x: x_e})
         for i in range(len(rez)):
            print(rez[i])
     return
