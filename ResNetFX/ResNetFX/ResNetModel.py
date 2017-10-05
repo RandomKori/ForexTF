@@ -28,7 +28,6 @@ class ResNet:
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
             output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
-            output=self._batch_norm(output)
             output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
             output=self._batch_norm(output)
             output=tf.nn.relu(output)
@@ -36,7 +35,6 @@ class ResNet:
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=self._batch_norm(output)
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
                 output=self._batch_norm(output)
                 output=tf.nn.relu(output)
@@ -63,7 +61,7 @@ class ResNet:
     
     def build_rms_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
-        self.train_step = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        self.train_step = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate,decay=0.3,momentum=0.1).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):
