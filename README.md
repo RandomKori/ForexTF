@@ -7,3 +7,4 @@
 
 Терминал Метатрэйдер 5 https://www.metatrader5.com/ru
 
+Обсуждение https://www.investforum.ru/forum/klub-strategov/strategiya-na-osnove-poiska-zakonomernostey-t2846.html
