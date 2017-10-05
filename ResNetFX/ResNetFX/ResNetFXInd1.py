@@ -3,7 +3,7 @@ import ResNetModel as rsn
 import pandas as pd
 
 LEARNING_RATE=0.0001
-EPOCHS=500
+EPOCHS=1000
 
 def Read(s):
     dt={'s1':np.float64,'s2':np.float64,'s3':np.float64,'s4':np.float64,'s5':np.float64,'s6':np.float64,'s7':np.float64,'s8':np.float64,'s9':np.float64,'s10':np.float64,'s11':np.float64,'s12':np.float64,'s13':np.float64,'s14':np.float64,'s15':np.float64,
