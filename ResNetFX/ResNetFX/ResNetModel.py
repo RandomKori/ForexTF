@@ -100,7 +100,7 @@ class ResNet:
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
             sess.run(tf.initialize_local_variables())
             acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-            print("Процент ошибок на тестовых данных  {0:.4f}".format(100.0-acc_test*100.0))
+            print("AUC  {0:.8f}".format(acc_test))
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])
