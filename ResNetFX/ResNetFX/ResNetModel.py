@@ -48,7 +48,10 @@ class ResNet:
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier,name="Classes")
         with tf.variable_scope("Metrics"):
-            _,self.accurasy=tf.metrics.auc(labels=self.y,predictions=self.classes)
+            prediction = tf.argmax(self.classes, 1)
+            label = tf.argmax(self.y, 1)
+            equality = tf.equal(prediction, label)
+            self.accurasy=tf.reduce_mean(tf.cast(equality, tf.float32))
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
@@ -68,7 +71,7 @@ class ResNet:
 
     def build_ftrl_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
-        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate,l2_regularization_strength=0.001,learning_rate_power=-0.1).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate,l1_regularization_strength=0.00001,l2_regularization_strength=0.00001).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):
@@ -96,13 +99,12 @@ class ResNet:
                 test_writer.add_summary(summary, e)
                 loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} Ошибка на тестовых данных: {2}".format(e,loss_train,loss_test))
+                acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
+                acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
+                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
                 if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
-            sess.run(tf.initialize_local_variables())
-            acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-            print("AUC  {0:.8f}".format(acc_test))
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])
