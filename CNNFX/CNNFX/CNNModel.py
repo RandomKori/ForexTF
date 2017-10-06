@@ -21,11 +21,15 @@ class CNN:
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
             output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
+            output=tf.nn.relu(output)
             output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
+            output=tf.nn.relu(output)
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
+                output=tf.nn.relu(output)
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
+                output=tf.nn.relu(output)
         with tf.variable_scope("Layer_out"):
             output=tf.reshape(output,[tf.shape(output)[0],self.inp_size*self.ftl])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)

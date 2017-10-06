@@ -28,6 +28,7 @@
   <ItemGroup>
     <Compile Include="CNNFX.py" />
     <Compile Include="CNNModel.py" />
+    <Compile Include="Test.py" />
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

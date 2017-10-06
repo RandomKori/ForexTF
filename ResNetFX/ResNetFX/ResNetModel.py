@@ -28,16 +28,18 @@ class ResNet:
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
             output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
-            output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
             output=self._batch_norm(output)
             output=tf.nn.relu(output)
+            output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
+            output=self._batch_norm(output)
             k=output
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
                 output=self._batch_norm(output)
                 output=tf.nn.relu(output)
+                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
+                output=self._batch_norm(output)
                 g=tf.identity(output)
                 output=tf.add(k,output)
                 k=g

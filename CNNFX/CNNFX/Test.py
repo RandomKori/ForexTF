@@ -1,5 +1,5 @@
 import numpy as np
-import ResNetModel as rsn
+import CNNModel as rsn
 import pandas as pd
 
 LEARNING_RATE=0.0001
@@ -27,10 +27,10 @@ y_t=one_hot(y_t)
 y_t=np.resize(y_t,(y_t.shape[0],38))
 y_e=one_hot(y_e)
 y_e=np.resize(y_t,(y_e.shape[0],38))
-net=rsn.ResNet(176,38)
+net=rsn.CNN(176,38)
 net.k_size=10
-net.ftl=8
-net.n_layers=10
+net.ftl=7
+net.n_layers=9
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
 net.batch_size=60

@@ -20,14 +20,14 @@ def Read(s):
 x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
 net=rsn.ResNet(45)
-net.k_size=12
-net.ftl=12
-net.n_layers=15
+net.k_size=15
+net.ftl=8
+net.n_layers=10
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
 net.batch_size=512
 net.build_model()
-net.build_mom_trainer()
+net.build_adam_trainer()
 print("Тренировка модели")
 net.train(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")

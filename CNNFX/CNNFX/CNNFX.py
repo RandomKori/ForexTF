@@ -2,7 +2,7 @@ import numpy as np
 import CNNModel as rsn
 import pandas as pd
 
-LEARNING_RATE=0.0001
+LEARNING_RATE=0.0002
 EPOCHS=1000
 
 def Read(s):
