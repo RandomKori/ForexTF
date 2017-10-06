@@ -13,7 +13,7 @@ class ResNet:
         self.batch_size=1024
         self.learning_rate=0.01
         self.bn_epsilon=0.001
-        self.erly_stop=0.01
+        self.erly_stop=1.0
 
     def _batch_norm(self,o):
         mean, variance = tf.nn.moments(o, axes=[0, 1, 2])
@@ -95,11 +95,10 @@ class ResNet:
                     train_writer.add_summary(summary, e * n_batches + s)
                 summary,acc = sess.run([merged, self.loss],feed_dict={self.x: x_test, self.y: y_test})
                 test_writer.add_summary(summary, e)
-                loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
                 acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
                 acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} {2:.4f}% Ошибка на тестовых данных: {3:.4f}%".format(e,loss_train,100.0-acc_train*100,100.0-acc_test*100.0))
-                if(loss_train < self.erly_stop):
+                print("Эпоха: {0} Ошибка: {1:.4f}% Ошибка на тестовых данных: {2:.4f}%".format(e,100.0-acc_train*100,100.0-acc_test*100.0))
+                if(acc_train > self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
