@@ -48,7 +48,8 @@ class ResNet:
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier,name="Classes")
         with tf.variable_scope("Metrics"):
-            _,self.accurasy=tf.metrics.accuracy(labels = self.y,predictions = self.classes)
+            pred=tf.round(self.classes)
+            _,self.accurasy=tf.metrics.accuracy(labels = self.y,predictions = pred)
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
