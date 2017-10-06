@@ -101,7 +101,7 @@ class ResNet:
                 loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
                 acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
                 acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
+                print("Эпоха: {0} Ошибка: {1} {3:.4f} Ошибка на тестовых данных: {2} {4:.4f}".format(e,loss_train,loss_test,100.0-acc_train*100,100.0-acc_test*100.0))
                 if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
