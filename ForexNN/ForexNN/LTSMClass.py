@@ -33,10 +33,12 @@ def model_rnn(x_t,y_t,x_e,y_e):
         global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         loss = tf.losses.softmax_cross_entropy(onehot_labels=y,  logits=prediction)
         train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss, global_step=tf.train.get_global_step())
-        _,accuracy = tf.metrics.precision(labels=y, predictions=classes)
-
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
-        tf.summary.scalar(name="Accuracy", tensor=accuracy)
+
+    with tf.variable_scope("Metrics"):
+        pred=tf.round(classes)
+        _,accurasy=tf.metrics.accuracy(labels = y,predictions = pred)
+        tf.summary.scalar(name="Accuracy", tensor=accurasy)
 
     idx = list(range(x_t.shape[0]))
     n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
@@ -58,12 +60,10 @@ def model_rnn(x_t,y_t,x_e,y_e):
                 train_writer.add_summary(summary, e * n_batches + s)
             summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
             test_writer.add_summary(summary, e)
-            loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
-            loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
-            acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
-            acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,acc_train[0],acc_test[0]))
-            if(loss_train < 0.02):
+            acc_train = accurasy.eval(feed_dict={x: x_t, y: y_t})
+            acc_test = accurasy.eval(feed_dict={x: x_e, y: y_e})
+            print("Эпоха: {0} Ошибка: {1:.4f}% Ошибка на тестовых данных: {2:.4f}%".format(e,100.0-acc_train*100,100.0-acc_test*100.0))
+            if(acc_train > 0.999):
                 break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
         rez = sess.run(classes,feed_dict={x: x_e})
