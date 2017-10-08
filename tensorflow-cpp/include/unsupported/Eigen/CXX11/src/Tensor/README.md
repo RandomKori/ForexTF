@@ -1751,5 +1751,3 @@ product of 2 1d tensors (through contractions) returns a 0d tensor.
 *   Complex and integer values are known to be broken on GPUs. If you try to use
     them you'll most likely end up triggering a static assertion failure such as
     EIGEN_STATIC_ASSERT(packetSize > 1, YOU_MADE_A_PROGRAMMING_MISTAKE)
-
-
