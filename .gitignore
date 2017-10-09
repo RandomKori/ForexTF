@@ -298,3 +298,7 @@ ResNetFX/ResNetFX/Data/
 ResNetFX/ResNetFX/ResNetFXModel/
 CNNFX/CNNFX/Data/
 CNNFX/CNNFX/logs/
+CNNFX/CNNFX/ResNetFXModel/
+NewNeuro/NewNeuro/logs/
+NewNeuro/NewNeuro/ModelDenseClass/
+NewNeuro/NewNeuro/Data/

@@ -3,15 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>71eb1d84-521d-4cfb-9c09-2a47d84650c5</ProjectGuid>
+    <ProjectGuid>f0318d3d-abf7-4fc1-8e93-512af67275c2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ResNetFXRaz2Label.py</StartupFile>
+    <StartupFile>DenseClass.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>ResNetFX</Name>
-    <RootNamespace>ResNetFX</RootNamespace>
+    <Name>NewNeuro</Name>
+    <RootNamespace>NewNeuro</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,23 +21,15 @@
     <DebugSymbols>true</DebugSymbols>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="ResNetFX.py" />
-    <Compile Include="ResNetFXDelta.py" />
-    <Compile Include="ResNetFXRaz.py" />
-    <Compile Include="ResNetFXRaz2Label.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ResNetFXTest.py" />
-    <Compile Include="ResNetFXDelta1.py" />
-    <Compile Include="ResNetFXInd1.py" />
-    <Compile Include="ResNetModel.py" />
-    <Compile Include="ResNetModel2L.py" />
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DenseClass.py" />
+    <Compile Include="DenseClassRaz.py" />
+    <Compile Include="Readers.py" />
+  </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

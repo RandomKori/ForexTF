@@ -29,6 +29,7 @@
     <Compile Include="CNNFX.py" />
     <Compile Include="CNNFX2Label.py" />
     <Compile Include="CNNModel.py" />
+    <Compile Include="CNNModel2L.py" />
     <Compile Include="Test.py" />
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
