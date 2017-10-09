@@ -93,7 +93,7 @@ class ResNet:
             for e in range(1, self.epchs + 1):
                 for s in range(n_batches):
                     feed = {self.x: x_train[s*self.batch_size:s*self.batch_size+self.batch_size], self.y: y_train[s*self.batch_size:s*self.batch_size+self.batch_size]}
-                    summary,acc = sess.run([merged, self.train_step], feed_dict=feed)
+                    acc = sess.run([self.train_step], feed_dict=feed)
                 summary_train,loss_train,acc_train = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_train, self.y: y_train})
                 train_writer.add_summary(summary_train, e)
                 summary_test,loss_test,acc_test = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_test, self.y: y_test})
