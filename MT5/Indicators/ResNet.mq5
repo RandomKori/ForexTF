@@ -14,7 +14,7 @@
 #property indicator_type1   DRAW_ARROW
 #property indicator_color1  clrYellow
 #property indicator_style1  STYLE_SOLID
-#property indicator_width1  1
+#property indicator_width1  4
 //--- input parameters
 input string   path="D:\\ModelFORTS\\ResNetFXModel";
 input int      NBars=1000;
@@ -67,11 +67,12 @@ int OnCalculate(const int rates_total,
    double in[45],ot[3];
    int limit;
    if(prev_calculated==0)
-      limit=Bars(Symbol(),Period())-NBars;
+      limit=0;
    else limit=prev_calculated-1;
    for(int i=limit;i<rates_total && !IsStopped();i++)
    {
       int index=0;
+      if(i<Bars(Symbol(),Period())-NBars-1) continue;
       for(int j=1;j<16;j++)
       {
          double delta=(high[i+j]-low[i+j])/norm;
@@ -84,7 +85,7 @@ int OnCalculate(const int rates_total,
       }
       EvalModel(in,ot);
       Print(ot[0]," ",ot[1]," ",ot[2]);
-      Label1Buffer[i-1]=0.0;
+      Label1Buffer[i+1]=0.0;
       if(ot[0]>Signal && ot[1]<NoSignal && ot[2]<NoSignal) Label1Buffer[i+1]=high[i+1];
       if(ot[0]<NoSignal && ot[1]>Signal && ot[2]<NoSignal) Label1Buffer[i+1]=low[i+1];
    }
