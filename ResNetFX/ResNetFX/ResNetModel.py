@@ -13,7 +13,7 @@ class ResNet:
         self.batch_size=1024
         self.learning_rate=0.01
         self.bn_epsilon=0.001
-        self.erly_stop=1.0
+        self.erly_stop=0.01
 
     def _batch_norm(self,o):
         mean, variance = tf.nn.moments(o, axes=[0, 1, 2])
@@ -49,7 +49,9 @@ class ResNet:
             self.classes=tf.nn.softmax(self.classifier,name="Classes")
         with tf.variable_scope("Metrics"):
             pred=tf.round(self.classes)
-            _,self.accurasy=tf.metrics.accuracy(labels = self.y,predictions = pred)
+            lab=tf.cast(self.y, tf.int32)
+            pred=tf.cast(pred, tf.int32)
+            self.accurasy=tf.contrib.metrics.accuracy(labels = lab, predictions = pred)
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
@@ -92,13 +94,12 @@ class ResNet:
                 for s in range(n_batches):
                     feed = {self.x: x_train[s*self.batch_size:s*self.batch_size+self.batch_size], self.y: y_train[s*self.batch_size:s*self.batch_size+self.batch_size]}
                     summary,acc = sess.run([merged, self.train_step], feed_dict=feed)
-                    train_writer.add_summary(summary, e * n_batches + s)
-                summary,acc = sess.run([merged, self.loss],feed_dict={self.x: x_test, self.y: y_test})
-                test_writer.add_summary(summary, e)
-                acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
-                acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-                print("Эпоха: {0} Ошибка: {1:.4f}% Ошибка на тестовых данных: {2:.4f}%".format(e,100.0-acc_train*100,100.0-acc_test*100.0))
-                if(acc_train > self.erly_stop):
+                summary_train,loss_train,acc_train = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_train, self.y: y_train})
+                train_writer.add_summary(summary_train, e)
+                summary_test,loss_test,acc_test = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_test, self.y: y_test})
+                test_writer.add_summary(summary_test, e)
+                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
+                if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
