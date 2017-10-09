@@ -41,18 +41,17 @@ void EvalModel(double* inp, double* out)
 {
 	vector<Tensor> outputs;
 	Tensor inputTensor(DT_FLOAT, TensorShape({1, 45, 1 }));
-	float m[45];
+	auto m = inputTensor.flat<float>();
+	
 	for (int i = 0; i < 45; i++)
-		m[i] = (float)(inp[i]);
-	auto fl = inputTensor.tensor_data();
-	fl.set(m, sizeof(float) * 45);
+		m.data()[i] = (float)(inp[i]);
 	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
 		{ "Imputs/Placeholder", inputTensor }
 	};
 	session->Run(inputs, { "Layer_out/Classes" }, {}, &outputs);
-	auto tfouts = outputs[0].tensor_data();
+	auto tfouts = outputs[0].flat<float>();
 	for (int i = 0; i < 3; i++)
-		out[i] = tfouts[i];
+		out[i] = tfouts.data()[i];
 }
 
 void DeInit()
