@@ -71,7 +71,7 @@ class ResNet:
 
     def build_ftrl_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
-        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate,l1_regularization_strength=0.00001,l2_regularization_strength=0.00001).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):

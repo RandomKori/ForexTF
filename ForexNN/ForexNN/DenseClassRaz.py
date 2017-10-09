@@ -2,7 +2,7 @@ import Readers as rd
 import numpy as np
 import tensorflow as tf
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.0001
 LEARNING_RATE_DECAY_RATE = 0.001
 EPOCHS=5000
 BATCH_SIZE=5000
@@ -20,14 +20,20 @@ def model_rnn(x_t,y_t,x_e,y_e):
             output = tf.layers.dense(inputs=output, units=70,activation=tf.nn.tanh, name="layer_"+"{}".format(i))
         
     with tf.variable_scope("predictions"):
-        prediction = tf.layers.dense(inputs=output, units=3, activation=tf.nn.sigmoid, name="prediction")
+        prediction = tf.layers.dense(inputs=output, units=3, activation=None, name="prediction")
+        classes=tf.nn.softmax(prediction)
 
     with tf.variable_scope("train"):
-        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.2))
+        loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(onehot_labels=y, logits=prediction,label_smoothing=0.1))
         train_step = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.5, use_nesterov=True).minimize(loss=loss, global_step=tf.train.get_global_step())
-        _,accuracy = tf.metrics.accuracy(labels=y, predictions=prediction)
         tf.summary.scalar(name="Cross Entropy", tensor=loss)
-        tf.summary.scalar(name="Accuracy", tensor=accuracy)
+
+    with tf.variable_scope("Metrics"):
+        pred=tf.round(classes)
+        lab=tf.cast(y, tf.int32)
+        pred=tf.cast(pred, tf.int32)
+        accurasy=tf.contrib.metrics.accuracy(labels = lab, predictions = pred)
+        tf.summary.scalar(name="Accuracy", tensor=accurasy)
 
     idx = list(range(x_t.shape[0]))
     n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
@@ -40,22 +46,16 @@ def model_rnn(x_t,y_t,x_e,y_e):
         sess.run(fetches=init_global)
         sess.run(tf.initialize_local_variables())
         for e in range(1, EPOCHS + 1):
-            #np.random.shuffle(idx)
-            batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
-            for s in range(n_batches):
-                id_batch = next(batch_generator)
-                feed = {x: x_t[id_batch], y: y_t[id_batch]}
-                summary,acc= sess.run([merged, train_step], feed_dict=feed)
-                train_writer.add_summary(summary, e * n_batches + s)
-            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
-            test_writer.add_summary(summary, e*n_batches+s)
-            loss_train = loss.eval(feed_dict={x: x_t, y: y_t})
-            loss_test = loss.eval(feed_dict={x: x_e, y: y_e})
-            acc_train = sess.run([accuracy],feed_dict={x: x_t, y: y_t})
-            acc_test = sess.run([accuracy],feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1} {3}% Ошибка на тестовых данных: {2} {4}%".format(e,loss_train,loss_test,acc_train[0],acc_test[0]))
-            if(loss_train<0.01): 
-                break
+                for s in range(n_batches):
+                    feed = {x: x_t[s*BATCH_SIZE:s*BATCH_SIZE+BATCH_SIZE], y: y_t[s*BATCH_SIZE:s*BATCH_SIZE+BATCH_SIZE]}
+                    acc = sess.run([train_step], feed_dict=feed)
+                summary_train,loss_train,acc_train = sess.run([merged, loss, accurasy],feed_dict={x: x_t, y: y_t})
+                train_writer.add_summary(summary_train, e)
+                summary_test,loss_test,acc_test = sess.run([merged, loss, accurasy],feed_dict={x: x_e, y: y_e})
+                test_writer.add_summary(summary_test, e)
+                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
+                if(loss_train<0.01): 
+                    break
         saver.save(sess=sess, save_path="./ModelDenseClass/DenseClass")
         rez=sess.run(prediction,feed_dict={x: x_e})
         for i in range(len(rez)):

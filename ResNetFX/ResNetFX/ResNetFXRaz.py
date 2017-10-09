@@ -2,7 +2,7 @@ import numpy as np
 import ResNetModel as rsn
 import pandas as pd
 
-LEARNING_RATE=0.01
+LEARNING_RATE=0.0001
 EPOCHS=400
 
 def Read(s):
@@ -25,9 +25,9 @@ net.ftl=7
 net.n_layers=10
 net.learning_rate=LEARNING_RATE
 net.epchs=EPOCHS
-net.batch_size=512
+net.batch_size=1024
 net.build_model()
-net.build_ftrl_trainer()
+net.build_rms_trainer()
 print("Тренировка модели")
 net.train(x_t,y_t,x_e,y_e)
 print("Тренировка закончена")

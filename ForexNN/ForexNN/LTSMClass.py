@@ -3,8 +3,7 @@ import numpy as np
 import tensorflow as tf
 
 LEARNING_RATE = 0.0001
-LEARNING_RATE_DECAY_RATE = 0.96
-EPOCHS = 1000
+EPOCHS = 100
 BATCH_SIZE = 1024
 LAYERS = 5
 
@@ -37,7 +36,9 @@ def model_rnn(x_t,y_t,x_e,y_e):
 
     with tf.variable_scope("Metrics"):
         pred=tf.round(classes)
-        _,accurasy=tf.metrics.accuracy(labels = y,predictions = pred)
+        lab=tf.cast(y, tf.int32)
+        pred=tf.cast(pred, tf.int32)
+        accurasy=tf.contrib.metrics.accuracy(labels = lab, predictions = pred)
         tf.summary.scalar(name="Accuracy", tensor=accurasy)
 
     idx = list(range(x_t.shape[0]))
@@ -50,21 +51,18 @@ def model_rnn(x_t,y_t,x_e,y_e):
         test_writer = tf.summary.FileWriter(logdir="./logs/test/", graph=sess.graph)
         sess.run(fetches=init_global)
         sess.run(tf.initialize_local_variables())
+        sess.run(tf.initialize_local_variables())
         for e in range(1, EPOCHS + 1):
-            #np.random.shuffle(idx)
-            batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
-            for s in range(n_batches):
-                id_batch = next(batch_generator)
-                feed = {x: x_t[id_batch], y: y_t[id_batch]}
-                summary,acc = sess.run([merged, train_step], feed_dict=feed)
-                train_writer.add_summary(summary, e * n_batches + s)
-            summary,acc = sess.run([merged, loss],feed_dict={x: x_e, y: y_e})
-            test_writer.add_summary(summary, e)
-            acc_train = accurasy.eval(feed_dict={x: x_t, y: y_t})
-            acc_test = accurasy.eval(feed_dict={x: x_e, y: y_e})
-            print("Эпоха: {0} Ошибка: {1:.4f}% Ошибка на тестовых данных: {2:.4f}%".format(e,100.0-acc_train*100,100.0-acc_test*100.0))
-            if(acc_train > 0.999):
-                break
+                for s in range(n_batches):
+                    feed = {x: x_t[s*BATCH_SIZE:s*BATCH_SIZE+BATCH_SIZE], y: y_t[s*BATCH_SIZE:s*BATCH_SIZE+BATCH_SIZE]}
+                    acc = sess.run([train_step], feed_dict=feed)
+                summary_train,loss_train,acc_train = sess.run([merged, loss, accurasy],feed_dict={x: x_t, y: y_t})
+                train_writer.add_summary(summary_train, e)
+                summary_test,loss_test,acc_test = sess.run([merged, loss, accurasy],feed_dict={x: x_e, y: y_e})
+                test_writer.add_summary(summary_test, e)
+                print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
+                if(loss_train<0.01): 
+                    break
         saver.save(sess=sess, save_path="./ModelRNNClass/RNNClass")
         rez = sess.run(classes,feed_dict={x: x_e})
         for i in range(len(rez)):
