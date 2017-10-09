@@ -44,14 +44,14 @@ void EvalModel(double* inp, double* out)
 	auto m = inputTensor.flat<float>();
 	
 	for (int i = 0; i < 45; i++)
-		m.data()[i] = (float)(inp[i]);
+		m(i) = (float)(inp[i]);
 	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
 		{ "Imputs/Placeholder", inputTensor }
 	};
 	session->Run(inputs, { "Layer_out/Classes" }, {}, &outputs);
 	auto tfouts = outputs[0].flat<float>();
 	for (int i = 0; i < 3; i++)
-		out[i] = tfouts.data()[i];
+		out[i] = tfouts(i);
 }
 
 void DeInit()
