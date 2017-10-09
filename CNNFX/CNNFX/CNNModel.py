@@ -21,22 +21,25 @@ class CNN:
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
             output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
-            output=tf.nn.relu(output)
+            output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
             output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-            output=tf.nn.relu(output)
+            output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=tf.nn.relu(output)
+                output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
                 output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=tf.nn.relu(output)
+                output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
         with tf.variable_scope("Layer_out"):
             output=tf.reshape(output,[tf.shape(output)[0],self.inp_size*self.ftl])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier,name="Classes")
         with tf.variable_scope("Metrics"):
-            _,self.accurasy=tf.metrics.precision(labels=self.y,predictions=self.classes)
-            tf.summary.scalar(name="Precision", tensor=self.accurasy)
+            pred=tf.round(self.classes)
+            lab=tf.cast(self.y, tf.int32)
+            pred=tf.cast(pred, tf.int32)
+            self.accurasy=tf.contrib.metrics.accuracy(labels = lab, predictions = pred)
+            tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
@@ -45,6 +48,11 @@ class CNN:
 
     def build_adam_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+        self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
+    
+    def build_adam_trainer_sce(self):
+        self.loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
     
@@ -77,14 +85,11 @@ class CNN:
             for e in range(1, self.epchs + 1):
                 for s in range(n_batches):
                     feed = {self.x: x_train[s*self.batch_size:s*self.batch_size+self.batch_size], self.y: y_train[s*self.batch_size:s*self.batch_size+self.batch_size]}
-                    summary,acc = sess.run([merged, self.train_step], feed_dict=feed)
-                    train_writer.add_summary(summary, e * n_batches + s)
-                summary,acc = sess.run([merged, self.loss],feed_dict={self.x: x_test, self.y: y_test})
-                test_writer.add_summary(summary, e)
-                loss_train = self.loss.eval(feed_dict={self.x: x_train, self.y: y_train})
-                loss_test = self.loss.eval(feed_dict={self.x: x_test, self.y: y_test})
-                acc_train = self.accurasy.eval(feed_dict={self.x: x_train, self.y: y_train})
-                acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
+                    acc = sess.run([self.train_step], feed_dict=feed)
+                summary_train,loss_train,acc_train = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_train, self.y: y_train})
+                train_writer.add_summary(summary_train, e)
+                summary_test,loss_test,acc_test = sess.run([merged, self.loss, self.accurasy],feed_dict={self.x: x_test, self.y: y_test})
+                test_writer.add_summary(summary_test, e)
                 print("Эпоха: {0} Ошибка: {1} {3} Ошибка на тестовых данных: {2} {4}".format(e,loss_train,loss_test,acc_train,acc_test))
                 if(loss_train < self.erly_stop):
                     break

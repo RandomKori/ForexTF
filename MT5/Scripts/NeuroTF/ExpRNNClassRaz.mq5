@@ -34,12 +34,12 @@ void OnStart()
     CopyRates(Symbol(),Period(),0,limit,his);
     int tr=(int)(limit*Split);
     int ot=FileOpen("train.csv",FILE_WRITE|FILE_ANSI,";");
-    string hdr="s1;s2;s3;s4;s5;s6;s7;s8;s9;s10;s11;s12;s13;s14;s15;s16;s17;s18;s19;s20;s21;s22;s23;s24;s25;s26;s27;s28;s29;s30;l1;l2;l3";
+    string hdr="s1;s2;s3;s4;s5;s6;s7;s8;s9;s10;s11;s12;s13;s14;s15;s16;s17;s18;s19;s20;s21;s22;s23;s24;s25;s26;s27;s28;s29;s30;s31;s32;s33;s34;s35;s36;s37;s38;s39;s40;s41;s42;s43;s44;s45;l1;l2;l3";
     FileWrite(ot,hdr);
-    for(int i=11;i<tr;i++)
+    for(int i=16;i<tr;i++)
     {
       string d="";
-      for(int j=0;j<10;j++)
+      for(int j=0;j<15;j++)
       {
          
          double delta=(his[i-j].high-his[i-j].low)/norm;
@@ -61,7 +61,7 @@ void OnStart()
     for(int i=tr;i<limit;i++)
     {
       string d="";
-      for(int j=0;j<10;j++)
+      for(int j=0;j<15;j++)
       {
          
          double delta=(his[i-j].high-his[i-j].low)/norm;

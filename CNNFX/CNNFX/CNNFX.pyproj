@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>0293e572-aa3c-4b1a-95b3-1d9cb003ac4e</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>CNNFX.py</StartupFile>
+    <StartupFile>CNNFX2Label.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,6 +27,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CNNFX.py" />
+    <Compile Include="CNNFX2Label.py" />
     <Compile Include="CNNModel.py" />
     <Compile Include="Test.py" />
   </ItemGroup>

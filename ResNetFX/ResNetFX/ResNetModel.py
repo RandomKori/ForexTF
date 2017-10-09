@@ -16,10 +16,7 @@ class ResNet:
         self.erly_stop=0.01
 
     def _batch_norm(self,o):
-        mean, variance = tf.nn.moments(o, axes=[0, 1, 2])
-        beta=tf.Variable(0.0,dtype=tf.float32)
-        gamma=tf.Variable(1.0,dtype=tf.float32)
-        bn=tf.nn.batch_normalization(o, mean, variance, beta, gamma, self.bn_epsilon)
+        bn=tf.contrib.layers.batch_norm(o, center=True, scale=True)
         return bn
 
     def build_model(self):
@@ -59,6 +56,11 @@ class ResNet:
         self.train_step = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.5, use_nesterov=True).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
+    def build_adam_trainer_sce(self):
+        self.loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=self.y, logits=self.classifier)
+        self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
+    
     def build_adam_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())

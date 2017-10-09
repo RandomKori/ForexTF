@@ -19,6 +19,7 @@ input int      D=3;
 input int      Slow=3;
 input int      NBars=50000;
 input double   Split=0.98;
+input double   norm=1.0;
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
@@ -56,9 +57,9 @@ void OnStart()
       for(int j=0;j<10;j++)
       {
          
-         double delta=at[i-j];
-         double delta1=macd[i-j];
-         double delta2=rsi[i-j];
+         double delta=at[i-j]/norm;
+         double delta1=macd[i-j]/norm;
+         double delta2=rsi[i-j]/norm;
          d=d+DoubleToString(delta,15)+";"+DoubleToString(delta1,15)+";"+DoubleToString(delta2,15)+";";
       }
       string d1="0.0;0.0;1.0";
@@ -78,9 +79,9 @@ void OnStart()
       for(int j=0;j<10;j++)
       {
          
-         double delta=at[i-j];
-         double delta1=macd[i-j];
-         double delta2=rsi[i-j];
+         double delta=at[i-j]/norm;
+         double delta1=macd[i-j]/norm;
+         double delta2=rsi[i-j]/norm;
          d=d+DoubleToString(delta,15)+";"+DoubleToString(delta1,15)+";"+DoubleToString(delta2,15)+";";
       }
       string d1="0.0;0.0;1.0";

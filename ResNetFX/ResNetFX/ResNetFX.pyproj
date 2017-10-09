@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>71eb1d84-521d-4cfb-9c09-2a47d84650c5</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ResNetFXRaz.py</StartupFile>
+    <StartupFile>ResNetFXRaz2Label.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,7 +24,8 @@
   <ItemGroup>
     <Compile Include="ResNetFX.py" />
     <Compile Include="ResNetFXDelta.py" />
-    <Compile Include="ResNetFXRaz.py">
+    <Compile Include="ResNetFXRaz.py" />
+    <Compile Include="ResNetFXRaz2Label.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ResNetFXTest.py" />
