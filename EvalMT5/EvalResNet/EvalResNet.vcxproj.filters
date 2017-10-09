@@ -29,7 +29,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="EvalMT5.cpp">
+    <ClCompile Include="EvalResNet.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
