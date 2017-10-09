@@ -75,9 +75,9 @@ int OnCalculate(const int rates_total,
       if(i<Bars(Symbol(),Period())-NBars-1) continue;
       for(int j=1;j<16;j++)
       {
-         double delta=(high[i+j]-low[i+j])/norm;
-         double delta1=(high[i+j]-high[i+j+1])/norm;
-         double delta2=(low[i+j]-low[i+j+1])/norm;
+         double delta=(high[i-j]-low[i-j])/norm;
+         double delta1=(high[i-j]-high[i-j-1])/norm;
+         double delta2=(low[i-j]-low[i-j-1])/norm;
          in[index]=delta;
          in[index+1]=delta1;
          in[index+2]=delta2;
@@ -85,9 +85,9 @@ int OnCalculate(const int rates_total,
       }
       EvalModel(in,ot);
       Print(ot[0]," ",ot[1]," ",ot[2]);
-      Label1Buffer[i+1]=0.0;
-      if(ot[0]>Signal && ot[1]<NoSignal && ot[2]<NoSignal) Label1Buffer[i+1]=high[i+1];
-      if(ot[0]<NoSignal && ot[1]>Signal && ot[2]<NoSignal) Label1Buffer[i+1]=low[i+1];
+      Label1Buffer[i-1]=0.0;
+      if(ot[0]>Signal && ot[1]<NoSignal && ot[2]<NoSignal) Label1Buffer[i-1]=high[i-1];
+      if(ot[0]<NoSignal && ot[1]>Signal && ot[2]<NoSignal) Label1Buffer[i-1]=low[i-1];
    }
 //--- return value of prev_calculated for next call
    return(rates_total);
