@@ -302,3 +302,5 @@ CNNFX/CNNFX/ResNetFXModel/
 NewNeuro/NewNeuro/logs/
 NewNeuro/NewNeuro/ModelDenseClass/
 NewNeuro/NewNeuro/Data/
+Keras/Test/Test/Data/
+Keras/Test/Test/TestModel/
