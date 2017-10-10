@@ -19,6 +19,7 @@ def Read(s):
 
 x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
+tensorboard=kr.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=512, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
 model = Sequential()
 model.add(kr.layers.Dense(units=90, input_dim=45))
 model.add(kr.layers.Activation('tanh'))
@@ -33,7 +34,7 @@ model.compile(loss=kr.losses.categorical_crossentropy,
 saver = tf.train.Saver()
 sess = tf.Session()
 K.set_session(sess)
-model.fit(x_t, y_t, epochs=100, batch_size=512)
+model.fit(x_t, y_t, epochs=100, batch_size=512, callbacks=[tensorboard])
 saver.save(sess=sess, save_path="./TestModel/TestModel")
 loss_and_metrics = model.evaluate(x_e, y_e, batch_size=512)
 classes = model.predict(x_e, batch_size=512)

@@ -304,3 +304,4 @@ NewNeuro/NewNeuro/ModelDenseClass/
 NewNeuro/NewNeuro/Data/
 Keras/Test/Test/Data/
 Keras/Test/Test/TestModel/
+Keras/Test/Test/logs/
