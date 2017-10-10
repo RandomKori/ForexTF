@@ -1,41 +1,50 @@
 import tensorflow as tf
 import numpy as np
 
-class CNN:
+class ResNet:
     
-    def __init__(self,input_size=45,num_classes=3,layers=20,epochs=100,kernel_size=4):
+    def __init__(self,input_size=45,num_classes=3,layers=20,epochs=100):
         self.inp_size=input_size
         self.n_classes=num_classes
         self.n_layers=layers
-        self.k_size=kernel_size
-        self.ftl=1
         self.epchs=epochs
         self.batch_size=1024
         self.learning_rate=0.01
         self.bn_epsilon=0.001
         self.erly_stop=0.01
+        self.dense_units=10
+
+    def _batch_norm(self,o):
+        bn=tf.contrib.layers.batch_norm(o, center=True, scale=True)
+        return bn
 
     def build_model(self):
         with tf.variable_scope("Imputs"):
-            self.x=tf.placeholder(tf.float32,[None,self.inp_size,1])
+            self.x=tf.placeholder(tf.float32,[None,self.inp_size])
             self.y=tf.placeholder(tf.float32,[None,self.n_classes])
         with tf.variable_scope("Layer_inp"):
-            output=tf.layers.conv1d(self.x,self.ftl,self.k_size,padding="same")
-            output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
-            output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-            output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
+            output=tf.layers.dense(self.x,self.dense_units,activation=tf.nn.sigmoid)
+            output=self._batch_norm(output)
+            output=tf.layers.dense(output,self.dense_units,activation=tf.nn.sigmoid)
+            output=self._batch_norm(output)
+            k=output
         for i in range(self.n_layers):
             with tf.variable_scope("Layer_{}".format(i)):
-                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
-                output=tf.layers.conv1d(output,self.ftl,self.k_size,padding="same")
-                output=tf.contrib.layers.batch_norm(output, center=True, scale=True)
+                output=tf.layers.dense(output,self.dense_units,activation=tf.nn.sigmoid)
+                output=self._batch_norm(output)
+                output=tf.layers.dense(output,self.dense_units,activation=tf.nn.sigmoid)
+                output=self._batch_norm(output)
+                g=tf.identity(output)
+                output=tf.add(k,output)
+                k=g
         with tf.variable_scope("Layer_out"):
-            output=tf.reshape(output,[tf.shape(output)[0],self.inp_size*self.ftl])
             self.classifier=tf.layers.dense(output,self.n_classes,activation=None)
             self.classes=tf.nn.softmax(self.classifier,name="Classes")
         with tf.variable_scope("Metrics"):
-            _,self.accurasy=tf.contrib.metrics.streaming_auc(labels = self.y, predictions = self.classes)
+            pred=tf.round(self.classes)
+            lab=tf.cast(self.y, tf.int32)
+            pred=tf.cast(pred, tf.int32)
+            self.accurasy=tf.contrib.metrics.accuracy(labels = lab, predictions = pred)
             tf.summary.scalar(name="Accuracy", tensor=self.accurasy)
 
     def build_mom_trainer(self):
@@ -43,13 +52,13 @@ class CNN:
         self.train_step = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.5, use_nesterov=True).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
-    def build_adam_trainer(self):
-        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
+    def build_adam_trainer_sce(self):
+        self.loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
     
-    def build_adam_trainer_sce(self):
-        self.loss = tf.losses.sigmoid_cross_entropy(multi_class_labels=self.y, logits=self.classifier)
+    def build_adam_trainer(self):
+        self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
     
@@ -60,7 +69,7 @@ class CNN:
 
     def build_ftrl_trainer(self):
         self.loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y, logits=self.classifier)
-        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate,l2_regularization_strength=0.001,learning_rate_power=-0.1).minimize(loss=self.loss, global_step=tf.train.get_global_step())
+        self.train_step = tf.train.FtrlOptimizer(learning_rate=self.learning_rate).minimize(loss=self.loss, global_step=tf.train.get_global_step())
         tf.summary.scalar(name="Cross Entropy", tensor=self.loss)
 
     def build_adam_log_loss_trainer(self):
@@ -72,8 +81,6 @@ class CNN:
         merged = tf.summary.merge_all()
         init_global = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
         saver = tf.train.Saver()
-        x_train.resize(x_train.shape[0],self.inp_size,1)
-        x_test.resize(x_test.shape[0],self.inp_size,1)
         n_batches = int(x_train.shape[0] / self.batch_size)
         with tf.Session() as sess:
             train_writer = tf.summary.FileWriter(logdir="./logs/train/", graph=sess.graph)
@@ -91,8 +98,6 @@ class CNN:
                 if(loss_train < self.erly_stop):
                     break
             saver.save(sess=sess, save_path="./ResNetFXModel/ResNetFXModel")
-            acc_test = self.accurasy.eval(feed_dict={self.x: x_test, self.y: y_test})
-            print("precision  {0:.8f}".format(acc_test))
             rez = sess.run(self.classes,feed_dict={self.x: x_test})
             for i in range(len(rez)):
                 print(rez[i])

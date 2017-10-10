@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>f0318d3d-abf7-4fc1-8e93-512af67275c2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DenseClass.py</StartupFile>
+    <StartupFile>DenseClass3LInd.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -27,6 +27,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DenseClass.py" />
+    <Compile Include="DenseClass3L.py" />
+    <Compile Include="DenseClass3LInd.py" />
     <Compile Include="DenseClassRaz.py" />
     <Compile Include="Readers.py" />
   </ItemGroup>
