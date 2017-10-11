@@ -305,3 +305,7 @@ NewNeuro/NewNeuro/Data/
 Keras/Test/Test/Data/
 Keras/Test/Test/TestModel/
 Keras/Test/Test/logs/
+Keras/KerasFX/KerasFX/Data/
+Keras/KerasFX/KerasFX/LTSMModel/
+Keras/ResNet/ResNet/logs/
+Keras/ResNet/ResNet/Data/
