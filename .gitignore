@@ -309,3 +309,5 @@ Keras/KerasFX/KerasFX/Data/
 Keras/KerasFX/KerasFX/LTSMModel/
 Keras/ResNet/ResNet/logs/
 Keras/ResNet/ResNet/Data/
+Keras/KerasFX/KerasFX/logs/
+Keras/ResNet/ResNet/ResNetModel/

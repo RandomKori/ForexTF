@@ -23,10 +23,10 @@ x_t.resize(x_t.shape[0],10,3)
 x_e.resize(x_e.shape[0],10,3)
 tensorboard=kr.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=512, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
 model = Sequential()
-model.add(kr.layers.LSTM(units=90, return_sequences=True, input_shape=(10, 3)))
-for i in range(6):
-    model.add(kr.layers.LSTM(units=90,return_sequences=True))
-model.add(kr.layers.LSTM(32))
+model.add(kr.layers.SimpleRNN(units=90, return_sequences=True, input_shape=(10, 3)))
+for i in range(3):
+    model.add(kr.layers.SimpleRNN(units=90,return_sequences=True))
+model.add(kr.layers.SimpleRNN(units=90))
 model.add(kr.layers.Dense(units=3,activation='softmax'))
 model.compile(loss=kr.losses.categorical_crossentropy,
               optimizer=kr.optimizers.RMSprop(lr=0.0001),metrics=['accuracy'])

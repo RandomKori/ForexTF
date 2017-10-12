@@ -9,7 +9,7 @@ def Read(s):
     dt={'s1':np.float64,'s2':np.float64,'s3':np.float64,'s4':np.float64,'s5':np.float64,'s6':np.float64,'s7':np.float64,'s8':np.float64,'s9':np.float64,'s10':np.float64,'s11':np.float64,'s12':np.float64,'s13':np.float64,'s14':np.float64,'s15':np.float64,
         's16':np.float64,'s17':np.float64,'s18':np.float64,'s19':np.float64,'s20':np.float64,'s21':np.float64,'s22':np.float64,'s23':np.float64,'s24':np.float64,'s25':np.float64,'s26':np.float64,'s27':np.float64,'s28':np.float64,'s29':np.float64,'s30':np.float64,
         's31':np.float64,'s32':np.float64,'s33':np.float64,'s34':np.float64,'s35':np.float64,'s36':np.float64,'s37':np.float64,'s38':np.float64,'s39':np.float64,'s40':np.float64,'s41':np.float64,'s42':np.float64,'s43':np.float64,'s44':np.float64,'s45':np.float64,
-        'l1':np.float64,'l2':np.float64,'l3':np.float64}
+        'l1':np.float64}
     dat=pd.read_csv(s,';',dtype=dt)
     x=dat[dat.columns[:45]].values
     y=dat[dat.columns[45:]].values
@@ -19,14 +19,16 @@ def Read(s):
 
 x_t,y_t = Read("./Data/train.csv")
 x_e,y_e = Read("./Data/test.csv")
+y_t=kr.utils.to_categorical(y_t,9)
+y_e=kr.utils.to_categorical(y_e,9)
 tensorboard=kr.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, batch_size=512, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
 model = Sequential()
 model.add(kr.layers.Dense(units=90,activation='tanh', input_dim=45))
 for i in range(10):
     model.add(kr.layers.Dense(units=90,activation='tanh'))
-model.add(kr.layers.Dense(units=3,activation='softmax'))
-model.compile(loss=kr.losses.categorical_crossentropy,
-              optimizer=kr.optimizers.SGD(lr=0.0001, momentum=0.9, nesterov=True),metrics=['accuracy'])
+model.add(kr.layers.Dense(units=9,activation='sigmoid'))
+model.compile(loss=kr.losses.binary_crossentropy,
+              optimizer=kr.optimizers.RMSprop(lr=0.0001),metrics=['accuracy'])
 
 saver = tf.train.Saver()
 sess = tf.Session()

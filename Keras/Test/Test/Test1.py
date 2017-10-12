@@ -26,7 +26,7 @@ for i in range(10):
     model.add(kr.layers.Dense(units=90,activation='tanh'))
 model.add(kr.layers.Dense(units=3,activation='softmax'))
 model.compile(loss=kr.losses.categorical_crossentropy,
-              optimizer=kr.optimizers.SGD(lr=0.0001, momentum=0.9, nesterov=True),metrics=['accuracy'])
+              optimizer=kr.optimizers.RMSprop(lr=0.0001),metrics=['accuracy'])
 
 saver = tf.train.Saver()
 sess = tf.Session()

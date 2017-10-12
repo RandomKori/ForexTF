@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>98fa9fee-72d2-4b4a-81de-a844af411c93</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ResNet.py</StartupFile>
+    <StartupFile>ReaNetKS.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -26,7 +26,14 @@
     <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ReaNet1.py" />
+    <Compile Include="ReaNetKS.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ResNet.py" />
+    <Compile Include="ResNetModel.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
